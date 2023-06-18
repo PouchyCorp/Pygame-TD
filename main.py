@@ -15,10 +15,12 @@ enemyNumber = 300
 enemyWidth = 30
 enemyHeight = 30
 
-def draw(player, wall, enemies):
+def draw(player, wall, enemies, bullets):
     WIN.fill('black')
     pygame.draw.rect(WIN, "green", wall)
     pygame.draw.rect(WIN, "red", player)
+    for bullet in bullets:
+        pygame.draw.rect(WIN, "yellow", bullet)
     for enemy in enemies:
         pygame.draw.rect(WIN, "blue", enemy)
     pygame.display.update()
@@ -48,6 +50,18 @@ def enemyCollision(self,enemies,dirvect,player):
         dirvect.scale_to_length(3)
         self.move_ip(dirvect)
         return
+
+def playerWeapon (player,bullets,enemies):
+     playerDir = pygame.math.Vector2(player.x - (player.x+PLAYER_WIDTH),
+                                     player.y - (player.y+PLAYER_HEIGHT))
+     bullet = pygame.Rect(player.x,player.y,10,10)
+     bullets.append(bullet)
+     playerDir.scale_to_length(7)
+     for bullet in bullets:
+        if bullet.colliderect(enemy)
+          bullet.move_ip(playerDir)
+
+     
     
                      
 
@@ -58,6 +72,7 @@ def main():
     wall = pygame.Rect(200,200,50,500)
     enemy = pygame.Rect(0,0,30,30)
     enemies = []
+    bullets = []
     clock = pygame.time.Clock()
 
     for i in range(enemyNumber):
@@ -96,7 +111,8 @@ def main():
         print("----")
         for enemy in enemies:
             enemyCollision(enemy,enemies,enemyDirection(enemy,player),player)
-        draw(player, wall, enemies)
+        playerWeapon(player,bullets,enemies)
+        draw(player, wall, enemies, bullets)
         
     
     pygame.quit()

@@ -1,7 +1,6 @@
 import pygame
 import random
 import math
-import time
 
 WIDTH, HEIGHT = 750, 750
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -11,7 +10,7 @@ PLAYER_WIDTH = 50
 PLAYER_HEIGHT = 50
 PLAYER_VEL = 5
 
-enemyNumber = 300
+enemyNumber = 100
 enemyWidth = 30
 enemyHeight = 30
 
@@ -35,31 +34,39 @@ def enemyDirection(self, player):
 def enemyCollision(self,enemies,dirvect,player):
     if dirvect != [0,0] and dirvect is not None :
         for enemy in enemies:
-                    if player.colliderect(enemy):
-                         player.x = WIDTH/2 - PLAYER_WIDTH/2
-                         player.y = HEIGHT/2 - PLAYER_HEIGHT
-                    if abs((enemy.x+enemyWidth)-(self.x+enemyWidth))<30 and abs((enemy.y+enemyHeight)-(self.y+enemyHeight))<30 and self != enemy:
-                        if math.hypot(enemy.x-player.x, enemy.y-player.y) < math.hypot(self.x-player.x, self.y-player.y):
-                            print("collision")
-                            dirvect.scale_to_length(4)
-                            self.move_ip(-dirvect)
-                        else:
-                            dirvect.scale_to_length(3)
-                            self.move_ip(dirvect)
-                            return
+            if player.colliderect(enemy):
+                    player.x = WIDTH/2 - PLAYER_WIDTH/2
+                    player.y = HEIGHT/2 - PLAYER_HEIGHT
+            if abs((enemy.x+enemyWidth)-(self.x+enemyWidth))<30 and abs((enemy.y+enemyHeight)-(self.y+enemyHeight))<30 and self != enemy:
+                if math.hypot(enemy.x-player.x, enemy.y-player.y) < math.hypot(self.x-player.x, self.y-player.y):
+                    print("collision")
+                    dirvect.scale_to_length(4)
+                    self.move_ip(-dirvect)
+                else:
+                    dirvect.scale_to_length(3)
+                    self.move_ip(dirvect)
+                    return
         dirvect.scale_to_length(3)
         self.move_ip(dirvect)
         return
 
-def playerWeapon (player,bullets,enemies):
-     playerDir = pygame.math.Vector2(player.x - (player.x+PLAYER_WIDTH),
-                                     player.y - (player.y+PLAYER_HEIGHT))
+def playerBulletsLogic (player,bullets):
+     global bullet
      bullet = pygame.Rect(player.x,player.y,10,10)
      bullets.append(bullet)
-     playerDir.scale_to_length(7)
-     for bullet in bullets:
-        if bullet.colliderect(enemy)
-          bullet.move_ip(playerDir)
+     return bullets
+
+
+def playerWeapon (player,bullets,enemy):
+    playerDir = pygame.math.Vector2(player.x - (player.x+PLAYER_WIDTH),
+                                    player.y - (player.y+PLAYER_HEIGHT))
+    playerDir.scale_to_length(7)
+    for bullet in bullets:
+        print(bullet)
+        #for enemy in enemies:
+        if bullet.colliderect(enemy) or bullet.colliderect(player) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y <0 :
+            del bullet
+        bullet.move_ip(playerDir)
 
      
     
@@ -81,7 +88,7 @@ def main():
              enemies.append(enemy)
 
     while run:
-        clock.tick(60)
+        clock.tick(40)
 
 #        playerXPrev = player.x
 #        playerYPrev = player.x
@@ -111,7 +118,8 @@ def main():
         print("----")
         for enemy in enemies:
             enemyCollision(enemy,enemies,enemyDirection(enemy,player),player)
-        playerWeapon(player,bullets,enemies)
+        playerBulletsLogic(player,bullets)
+        playerWeapon(player,bullets,enemy)
         draw(player, wall, enemies, bullets)
         
     

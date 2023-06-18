@@ -3,6 +3,8 @@ import random
 import math
 import time
 
+
+
 WIDTH, HEIGHT = 750, 750
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("UwU")
@@ -68,8 +70,8 @@ def main():
     while run:
         clock.tick(60)
 
-#        playerXPrev = player.x
-#        playerYPrev = player.x
+        playerXPrev = player.x
+        playerYPrev = player.x
 #        enemyXPrev  = enemy.x
 #        enemyXPrev  = enemy.x
 
@@ -80,8 +82,8 @@ def main():
                 
         #collision du mur avec le joueur 
         if player.colliderect(wall):
-            player.x = WIDTH/2 - PLAYER_WIDTH/2
-            player.y = HEIGHT/2 - PLAYER_HEIGHT
+            player.x = playerXPrev
+            player.y = playeryPrev
     
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:

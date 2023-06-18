@@ -2,9 +2,31 @@ import pygame
 import random
 import math
 
+
+
 WIDTH, HEIGHT = 750, 750
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("UwU")
+
+list_sec = list(range(1, 301))
+
+
+
+x = random.choice(list_sec)
+y = random.choice(list_sec)
+z = random.choice(list_sec)
+v = random.choice(list_sec)
+
+print(x)
+print(y)
+print(z)
+print(v)
+
+
+AXE_4 = int(v)
+AXE_3 = int(z)
+AXE_2 = int(y)
+AXE_1 = int(x)
 
 PLAYER_WIDTH = 50
 PLAYER_HEIGHT = 50
@@ -76,7 +98,7 @@ def main():
     run = True
 
     player = pygame.Rect(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
-    wall = pygame.Rect(200,200,50,500)
+    wall = pygame.Rect(AXE_1,AXE_2,AXE_3,AXE_4)
     enemy = pygame.Rect(0,0,30,30)
     enemies = []
     bullets = []
@@ -90,8 +112,8 @@ def main():
     while run:
         clock.tick(40)
 
-#        playerXPrev = player.x
-#        playerYPrev = player.x
+        playerXPrev = player.x
+        playerYPrev = player.x
 #        enemyXPrev  = enemy.x
 #        enemyXPrev  = enemy.x
 
@@ -102,8 +124,8 @@ def main():
                 
         #collision du mur avec le joueur 
         if player.colliderect(wall):
-            player.x = WIDTH/2 - PLAYER_WIDTH/2
-            player.y = HEIGHT/2 - PLAYER_HEIGHT
+            player.x = playerXPrev
+            player.y = playeryPrev
     
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:

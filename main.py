@@ -11,7 +11,7 @@ PLAYER_WIDTH = 50
 PLAYER_HEIGHT = 50
 PLAYER_VEL = 5
 
-enemyNumber = 500
+enemyNumber = 300
 enemyWidth = 30
 enemyHeight = 30
 

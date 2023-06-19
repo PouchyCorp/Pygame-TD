@@ -84,10 +84,13 @@ def playerWeapon (player,bullets,enemies,wall):
                                     player.y - mouse_y)
     mouseDir.scale_to_length(7)
     for bullet in bullets:
-        for enemy in enemies:
-            if bullet.colliderect(enemy) or bullet.colliderect(wall) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y <0:
-                print("uwu")
+        if bullet.colliderect(wall) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y <0:
                 bullets.remove(bullet)
+                break
+        for enemy in enemies:
+            if bullet.colliderect(enemy):
+                bullets.remove(bullet)
+                enemies.remove(enemy)
                 break
         bullet.move_ip(-mouseDir)
 

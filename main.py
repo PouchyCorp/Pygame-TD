@@ -36,6 +36,20 @@ enemyNumber = 10
 enemyWidth = 30
 enemyHeight = 30
 
+class Bullet:
+    def __init__(self,x,y,width,height,dir,vel):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.dir = dir
+        self.vel = vel 
+    
+    def rect (self):
+        bullet = pygame.Rect(self.x,self.y,self.width,self.height)
+        return bullet
+         
+
 def draw(player, wall, enemies, bullets):   #dessine chaque element de la scene
     WIN.fill('black')
     pygame.draw.rect(WIN, "green", wall)
@@ -73,10 +87,9 @@ def enemyCollision(self,enemies,dirvect,player):
 
 def playerBulletsLogic (player,bullets):            
      global bullet
-     bullet = pygame.Rect(player.x,player.y,10,10)
-     bullets.append(bullet)
+     bullet = Bullet(player.x,player.y,10,10,0,4)
+     bullets.append(bullet.rect())
      return bullets
-
 
 def playerWeapon (player,bullets,enemies,wall):
     mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -143,8 +156,10 @@ def main():
             
         for enemy in enemies:
             enemyCollision(enemy,enemies,enemyDirection(enemy,player),player)
+        
         playerBulletsLogic(player,bullets)
         playerWeapon(player,bullets,enemies,wall)
+
         draw(player, wall, enemies, bullets)
         
     

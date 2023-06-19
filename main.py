@@ -114,8 +114,8 @@ def main():
 
         playerXPrev = player.x
         playerYPrev = player.x
-#        enemyXPrev  = enemy.x
-#        enemyXPrev  = enemy.x
+        enemyXPrev  = enemy.x
+        enemyXPrev  = enemy.x
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -125,7 +125,7 @@ def main():
         #collision du mur avec le joueur 
         if player.colliderect(wall):
             player.x = playerXPrev
-            player.y = playeryPrev
+            player.y = playerYPrev
     
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:

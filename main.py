@@ -140,8 +140,7 @@ def main():
             player.y += PLAYER_VEL
         if keys[pygame.K_UP]  and player.y - PLAYER_VEL >= 0:
             player.y -= PLAYER_VEL
-
-        print("----")
+            
         for enemy in enemies:
             enemyCollision(enemy,enemies,enemyDirection(enemy,player),player)
         playerBulletsLogic(player,bullets)

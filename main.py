@@ -36,7 +36,7 @@ enemyNumber = 100
 enemyWidth = 30
 enemyHeight = 30
 
-def draw(player, wall, enemies, bullets):
+def draw(player, wall, enemies, bullets):   #dessine chaque element de la scene
     WIN.fill('black')
     pygame.draw.rect(WIN, "green", wall)
     pygame.draw.rect(WIN, "red", player)
@@ -46,14 +46,14 @@ def draw(player, wall, enemies, bullets):
         pygame.draw.rect(WIN, "blue", enemy)
     pygame.display.update()
 
-def enemyDirection(self, player):
+def enemyDirection(self, player):                               #vecteur de direction de l'enemy
             dirvect = pygame.math.Vector2(player.x - self.x,
                                         player.y - self.y)
             if dirvect != [0,0]:
                 dirvect.normalize()
                 return dirvect
 
-def enemyCollision(self,enemies,dirvect,player):
+def enemyCollision(self,enemies,dirvect,player):        
     if dirvect != [0,0] and dirvect is not None :
         for enemy in enemies:
             if player.colliderect(enemy):
@@ -72,7 +72,7 @@ def enemyCollision(self,enemies,dirvect,player):
         self.move_ip(dirvect)
         return
 
-def playerBulletsLogic (player,bullets):
+def playerBulletsLogic (player,bullets):            
      global bullet
      bullet = pygame.Rect(player.x,player.y,10,10)
      bullets.append(bullet)
@@ -97,22 +97,22 @@ def playerWeapon (player,bullets,enemy):
 def main():
     run = True
 
-    player = pygame.Rect(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
+    player = pygame.Rect(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)   #taille de chaque objet de la scene
     wall = pygame.Rect(AXE_1,AXE_2,AXE_3,AXE_4)
     enemy = pygame.Rect(0,0,30,30)
     enemies = []
     bullets = []
     clock = pygame.time.Clock()
 
-    for i in range(enemyNumber):
+    for i in range(enemyNumber):                                    #fait spawn les noobies
              enemyX = random.choice([i for i in range(WIDTH)])
              enemy = pygame.Rect(enemyX,0,enemyWidth,enemyHeight)
              enemies.append(enemy)
 
     while run:
-        clock.tick(40)
+        clock.tick(40)          #tick par seconde du gaming
 
-        playerXPrev = player.x
+        playerXPrev = player.x      #variable qui definie la position du joueur 
         playerYPrev = player.x
         enemyXPrev  = enemy.x
         enemyXPrev  = enemy.x
@@ -124,10 +124,10 @@ def main():
                 
         #collision du mur avec le joueur 
         if player.colliderect(wall):
-            player.x = playerXPrev
+            player.x = playerXPrev  #prend la varible pour 
             player.y = playerYPrev
     
-        keys = pygame.key.get_pressed()
+        keys = pygame.key.get_pressed()             #machin pour bouger en faisant cliclic
         if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:
             player.x -= PLAYER_VEL
         if keys[pygame.K_RIGHT] and player.x + PLAYER_VEL + PLAYER_WIDTH <= WIDTH:

@@ -10,7 +10,7 @@ PLAYER_WIDTH = 50
 PLAYER_HEIGHT = 50
 PLAYER_VEL = 5
 
-enemyNumber = 10
+enemyNumber = 200
 enemyWidth = 30
 enemyHeight = 30
 
@@ -98,8 +98,8 @@ def main():
     enemies = []
     bullets = []
     clock = pygame.time.Clock()
-    attackSpeed = 75
-    attackSpeedIncrement = clock.get_fps()
+    attackSpeed = 50
+    attackSpeedIncrement = 0
 
     for i in range(enemyNumber):                                    #fait spawn les noobies
              enemyX = random.choice([i for i in range(WIDTH)])
@@ -109,8 +109,10 @@ def main():
     while run:
         clock.tick(60)          #tick par seconde du gaming
 
-        playerXPrev = player.x      #variable qui definie la position du joueur 
+        playerXPrev = player.x  
+        playerXPrev = playerXPrev    #variable qui definie la position du joueur 
         playerYPrev = player.x
+        playerYPrev = playerYPrev
         enemyXPrev  = enemy.x
         enemyXPrev  = enemy.x
 
@@ -119,12 +121,11 @@ def main():
                 run = False
                 break
                 
-        #collision du mur avec le joueur 
-        if player.colliderect(wall):
-            player.x = playerXPrev  #prend la varible pour 
-            player.y = playerYPrev
+        
+
+         #machin pour bouger en faisant cliclic
     
-        keys = pygame.key.get_pressed()             #machin pour bouger en faisant cliclic
+        keys = pygame.key.get_pressed()             
         if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:
             player.x -= PLAYER_VEL
         if keys[pygame.K_RIGHT] and player.x + PLAYER_VEL + PLAYER_WIDTH <= WIDTH:
@@ -133,18 +134,26 @@ def main():
             player.y += PLAYER_VEL
         if keys[pygame.K_UP]  and player.y - PLAYER_VEL >= 0:
             player.y -= PLAYER_VEL
-            
+        
+        #collision du mur avec le joueur UwU
+        
+        if player.colliderect(wall):
+            player.x = playerXPrev
+            player.y = playerYPrev    
+
         for enemy in enemies:
             enemyCollision(enemy,enemies,enemyDirection(enemy,player),player)
-        
+            
+        #bullet firing
+
         attackSpeedIncrement += clock.get_fps()/attackSpeed
-        if attackSpeedIncrement >= clock.get_fps():
+        if attackSpeedIncrement >= clock.get_fps() and clock.get_fps() != 0:
+            print(clock.get_fps())
             attackSpeedIncrement = 0
             playerBulletsInit(player,bullets)
         playerWeapon(player,bullets,enemies,wall)
 
         draw(player, wall, enemies, bullets)
-        
     
     pygame.quit()
 

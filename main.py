@@ -43,11 +43,8 @@ class Bullet:
         self.width = width
         self.height = height
         self.dir = dir
-        self.vel = vel 
-    
-    def rect (self):
-        bullet = pygame.Rect(self.x,self.y,self.width,self.height)
-        return bullet
+        self.vel = vel
+        self.rect = pygame.Rect(self.x,self.y,self.width,self.height)
          
 
 def draw(player, wall, enemies, bullets):   #dessine chaque element de la scene

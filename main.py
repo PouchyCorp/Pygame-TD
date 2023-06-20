@@ -85,7 +85,7 @@ def enemyCollision(self,enemies,dirvect,player):
 def playerBulletsLogic (player,bullets):            
      global bullet
      bullet = Bullet(player.x,player.y,10,10,0,4)
-     bullets.append(bullet.rect())
+     bullets.append(bullet)
      return bullets
 
 def playerWeapon (player,bullets,enemies,wall):
@@ -94,15 +94,17 @@ def playerWeapon (player,bullets,enemies,wall):
                                     player.y - mouse_y)
     mouseDir.scale_to_length(7)
     for bullet in bullets:
-        if bullet.colliderect(wall) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y <0:
+        if bullet.rect.colliderect(wall) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y <0:
                 bullets.remove(bullet)
                 break
         for enemy in enemies:
-            if bullet.colliderect(enemy):
+            if bullet.rect.colliderect(enemy):
                 bullets.remove(bullet)
                 enemies.remove(enemy)
                 break
-        bullet.move_ip(-mouseDir)
+        if bullet.dir == 0:
+             bullet.dir = -mouseDir
+        bullet.rect.move_ip(bullet.dir)
 
      
     

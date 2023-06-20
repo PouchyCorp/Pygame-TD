@@ -2,31 +2,9 @@ import pygame
 import random
 import math
 
-
-
 WIDTH, HEIGHT = 750, 750
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("UwU")
-
-list_sec = list(range(50, 200))
-
-
-
-x = random.choice(list_sec)
-y = random.choice(list_sec)
-z = random.choice(list_sec)
-v = random.choice(list_sec)
-
-print(x)
-print(y)
-print(z)
-print(v)
-
-
-AXE_4 = int(v)
-AXE_3 = int(z)
-AXE_2 = int(y)
-AXE_1 = int(x)
 
 PLAYER_WIDTH = 50
 PLAYER_HEIGHT = 50
@@ -35,6 +13,9 @@ PLAYER_VEL = 5
 enemyNumber = 10
 enemyWidth = 30
 enemyHeight = 30
+
+bulletWidth = 10
+bulletHeight = 10
 
 class Bullet:
     def __init__(self,x,y,width,height,dir,vel):
@@ -82,9 +63,9 @@ def enemyCollision(self,enemies,dirvect,player):
         self.move_ip(dirvect)
         return
 
-def playerBulletsLogic (player,bullets):            
+def playerBulletsInit (player,bullets):            
      global bullet
-     bullet = Bullet(player.x,player.y,10,10,0,4)
+     bullet = Bullet(player.x+PLAYER_WIDTH/2-bulletWidth/2,player.y+PLAYER_HEIGHT/2-bulletHeight/2,10,10,0,4)
      bullets.append(bullet)
      return bullets
 
@@ -96,12 +77,10 @@ def playerWeapon (player,bullets,enemies,wall):
     for bullet in bullets:
         if bullet.rect.colliderect(wall) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y <0:
                 bullets.remove(bullet)
-                break
         for enemy in enemies:
-            if bullet.rect.colliderect(enemy):
+            if bullet.rect.colliderect(enemy) and bullet in bullets:
                 bullets.remove(bullet)
                 enemies.remove(enemy)
-                break
         if bullet.dir == 0:
              bullet.dir = -mouseDir
         bullet.rect.move_ip(bullet.dir)
@@ -114,11 +93,13 @@ def main():
     run = True
 
     player = pygame.Rect(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)   #taille de chaque objet de la scene
-    wall = pygame.Rect(AXE_1,AXE_2,AXE_3,AXE_4)
+    wall = pygame.Rect(100,100,100,100)
     enemy = pygame.Rect(0,0,30,30)
     enemies = []
     bullets = []
     clock = pygame.time.Clock()
+    attackSpeed = 75
+    attackSpeedIncrement = clock.get_fps()
 
     for i in range(enemyNumber):                                    #fait spawn les noobies
              enemyX = random.choice([i for i in range(WIDTH)])
@@ -126,7 +107,7 @@ def main():
              enemies.append(enemy)
 
     while run:
-        clock.tick(40)          #tick par seconde du gaming
+        clock.tick(60)          #tick par seconde du gaming
 
         playerXPrev = player.x      #variable qui definie la position du joueur 
         playerYPrev = player.x
@@ -136,7 +117,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                break\
+                break
                 
         #collision du mur avec le joueur 
         if player.colliderect(wall):
@@ -156,7 +137,10 @@ def main():
         for enemy in enemies:
             enemyCollision(enemy,enemies,enemyDirection(enemy,player),player)
         
-        playerBulletsLogic(player,bullets)
+        attackSpeedIncrement += clock.get_fps()/attackSpeed
+        if attackSpeedIncrement >= clock.get_fps():
+            attackSpeedIncrement = 0
+            playerBulletsInit(player,bullets)
         playerWeapon(player,bullets,enemies,wall)
 
         draw(player, wall, enemies, bullets)

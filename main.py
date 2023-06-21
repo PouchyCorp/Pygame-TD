@@ -10,7 +10,7 @@ PLAYER_WIDTH = 50
 PLAYER_HEIGHT = 50
 PLAYER_VEL = 5
 
-enemyNumber = 200
+enemyNumber = 3
 enemyWidth = 30
 enemyHeight = 30
 
@@ -44,6 +44,7 @@ def enemyDirection(self, player):                               #vecteur de dire
             if dirvect != [0,0]:
                 dirvect.normalize()
                 return dirvect
+            
 
 def enemyCollision(self,enemies,dirvect,player):        
     if dirvect != [0,0] and dirvect is not None :
@@ -62,12 +63,14 @@ def enemyCollision(self,enemies,dirvect,player):
         dirvect.scale_to_length(3)
         self.move_ip(dirvect)
         return
+    
 
 def playerBulletsInit (player,bullets):            
      global bullet
      bullet = Bullet(player.x+PLAYER_WIDTH/2-bulletWidth/2,player.y+PLAYER_HEIGHT/2-bulletHeight/2,10,10,0,4)
      bullets.append(bullet)
      return bullets
+
 
 def playerWeapon (player,bullets,enemies,wall):
     mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -97,20 +100,36 @@ def main():
     enemy = pygame.Rect(0,0,30,30)
     enemies = []
     bullets = []
+
     clock = pygame.time.Clock()
-    attackSpeed = 50
+
+    attackSpeed = 60
     attackSpeedIncrement = 0
 
-    for i in range(enemyNumber):                                    #fait spawn les noobies
-             enemyX = random.choice([i for i in range(WIDTH)])
-             enemy = pygame.Rect(enemyX,0,enemyWidth,enemyHeight)
-             enemies.append(enemy)
+    enemySpawnIncrement = 0
+    enemySpawnRate = 4
 
     while run:
-        clock.tick(60)          #tick par seconde du gaming
 
+        #tick par seconde du gaming
+
+        clock.tick(60)          
+
+        #fait spawn les noobies
+
+        enemySpawnIncrement += enemySpawnRate
+        if enemySpawnIncrement >= 1000:
+            enemySpawnRate += 0.01
+            enemySpawnIncrement = 0
+            for i in range(enemyNumber):               
+                    enemyX = random.choice([i for i in range(WIDTH)])
+                    enemy = pygame.Rect(enemyX,0,enemyWidth,enemyHeight)
+                    enemies.append(enemy)
+
+        #variable qui definie la position du joueur 
+        
         playerXPrev = player.x  
-        playerXPrev = playerXPrev    #variable qui definie la position du joueur 
+        playerXPrev = playerXPrev    
         playerYPrev = player.x
         playerYPrev = playerYPrev
         enemyXPrev  = enemy.x
@@ -121,9 +140,7 @@ def main():
                 run = False
                 break
                 
-        
-
-         #machin pour bouger en faisant cliclic
+        #machin pour bouger en faisant cliclic
     
         keys = pygame.key.get_pressed()             
         if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:
@@ -152,6 +169,8 @@ def main():
             attackSpeedIncrement = 0
             playerBulletsInit(player,bullets)
         playerWeapon(player,bullets,enemies,wall)
+
+        #object rendering
 
         draw(player, wall, enemies, bullets)
     

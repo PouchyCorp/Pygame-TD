@@ -26,7 +26,27 @@ class Bullet:
         self.dir = dir
         self.vel = vel
         self.rect = pygame.Rect(self.x,self.y,self.width,self.height)
+
+class Player:
+    def __init__(self,x,y,width,height,vel):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.vel = vel
+        self.rect = pygame.Rect(self.x,self.y,self.width,self.height)
+    
+    def basicPlayerMov(self,keys):              
+        if keys[pygame.K_LEFT] and self.x - PLAYER_VEL >= 0:
+            self.x -= PLAYER_VEL
+        if keys[pygame.K_RIGHT] and self.x + PLAYER_VEL + PLAYER_WIDTH <= WIDTH:
+            self.x += PLAYER_VEL
+        if keys[pygame.K_DOWN] and self.y + PLAYER_VEL + PLAYER_HEIGHT <= HEIGHT:
+            self.y += PLAYER_VEL
+        if keys[pygame.K_UP]  and self.y - PLAYER_VEL >= 0:
+            self.y -= PLAYER_VEL
          
+    
 
 def draw(player, wall, enemies, bullets):   #dessine chaque element de la scene
     WIN.fill('black')
@@ -49,7 +69,7 @@ def enemyDirection(self, player):                               #vecteur de dire
 def enemyCollision(self,enemies,dirvect,player):        
     if dirvect != [0,0] and dirvect is not None :
         for enemy in enemies:
-            if player.colliderect(enemy):
+            if player.rect.colliderect(enemy):
                     player.x = WIDTH/2 - PLAYER_WIDTH/2
                     player.y = HEIGHT/2 - PLAYER_HEIGHT
             if abs((enemy.x+enemyWidth)-(self.x+enemyWidth))<30 and abs((enemy.y+enemyHeight)-(self.y+enemyHeight))<30 and self != enemy:
@@ -88,6 +108,10 @@ def playerWeapon (player,bullets,enemies,wall):
              bullet.dir = -mouseDir
         bullet.rect.move_ip(bullet.dir)
 
+def playerXYSync(player):
+     player.rect.x = player.x
+     player.rect.y = player.y
+
      
     
                      
@@ -95,7 +119,7 @@ def playerWeapon (player,bullets,enemies,wall):
 def main():
     run = True
 
-    player = pygame.Rect(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)   #taille de chaque objet de la scene
+    player = Player(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT,PLAYER_VEL)   #taille de chaque objet de la scene
     wall = pygame.Rect(100,100,100,100)
     enemy = pygame.Rect(0,0,30,30)
     enemies = []
@@ -127,34 +151,25 @@ def main():
                     enemies.append(enemy)
 
         #variable qui definie la position du joueur 
-        
+
         playerXPrev = player.x  
         playerXPrev = playerXPrev    
         playerYPrev = player.x
         playerYPrev = playerYPrev
-        enemyXPrev  = enemy.x
-        enemyXPrev  = enemy.x
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 break
-                
-        #machin pour bouger en faisant cliclic
-    
-        keys = pygame.key.get_pressed()             
-        if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:
-            player.x -= PLAYER_VEL
-        if keys[pygame.K_RIGHT] and player.x + PLAYER_VEL + PLAYER_WIDTH <= WIDTH:
-            player.x += PLAYER_VEL
-        if keys[pygame.K_DOWN] and player.y + PLAYER_VEL + PLAYER_HEIGHT <= HEIGHT:
-            player.y += PLAYER_VEL
-        if keys[pygame.K_UP]  and player.y - PLAYER_VEL >= 0:
-            player.y -= PLAYER_VEL
         
+        #deplacement du joueur (voir class Player)
+
+        player.basicPlayerMov(pygame.key.get_pressed())
+        playerXYSync(player)
+
         #collision du mur avec le joueur UwU
         
-        if player.colliderect(wall):
+        if player.rect.colliderect(wall):
             player.x = playerXPrev
             player.y = playerYPrev    
 
@@ -172,7 +187,7 @@ def main():
 
         #object rendering
 
-        draw(player, wall, enemies, bullets)
+        draw(player.rect, wall, enemies, bullets)
     
     pygame.quit()
 

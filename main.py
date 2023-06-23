@@ -2,6 +2,7 @@ import pygame
 import random
 import math
 
+
 WIDTH, HEIGHT = 750, 750
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("UwU")
@@ -16,6 +17,8 @@ enemyHeight = 30
 
 bulletWidth = 10
 bulletHeight = 10
+
+playerImage = pygame.image.load('Trollface.jpg')
 
 class Bullet:
     def __init__(self,x,y,width,height,dir,vel):
@@ -35,6 +38,8 @@ class Player:
         self.height = height
         self.vel = vel
         self.rect = pygame.Rect(self.x,self.y,self.width,self.height)
+        self.image = pygame.transform.scale(playerImage,(self.width,self.height))
+        
     
     def basicPlayerMov(self,keys):              
         if keys[pygame.K_LEFT] and self.x - PLAYER_VEL >= 0:
@@ -51,7 +56,8 @@ class Player:
 def draw(player, wall, enemies, bullets):   #dessine chaque element de la scene
     WIN.fill('black')
     pygame.draw.rect(WIN, "green", wall)
-    pygame.draw.rect(WIN, "red", player)
+    pygame.draw.rect(WIN, "red", player.rect)
+    WIN.blit(player.image,player.rect)
     for bullet in bullets:
         pygame.draw.rect(WIN, "yellow", bullet)
     for enemy in enemies:
@@ -187,7 +193,7 @@ def main():
 
         #object rendering
 
-        draw(player.rect, wall, enemies, bullets)
+        draw(player, wall, enemies, bullets)
     
     pygame.quit()
 

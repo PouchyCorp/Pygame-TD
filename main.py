@@ -36,9 +36,11 @@ class Player:
         self.y = y
         self.width = width
         self.height = height
+        self.dir = pygame.math.Vector2((self.x+width/2) - (self.x+width/2),
+                                       (self.y)-(self.y+height/2))
         self.vel = vel
-        self.rect = pygame.Rect(self.x,self.y,self.width,self.height)
         self.image = pygame.transform.scale(playerImage,(self.width,self.height))
+        self.rect = self.image.get_rect()
         
     
     def basicPlayerMov(self,keys):              
@@ -56,7 +58,6 @@ class Player:
 def draw(player, wall, enemies, bullets):   #dessine chaque element de la scene
     WIN.fill('black')
     pygame.draw.rect(WIN, "green", wall)
-    pygame.draw.rect(WIN, "red", player.rect)
     WIN.blit(player.image,player.rect)
     for bullet in bullets:
         pygame.draw.rect(WIN, "yellow", bullet)
@@ -194,6 +195,10 @@ def main():
         #object rendering
 
         draw(player, wall, enemies, bullets)
+
+        #debug
+        pygame.transform.rotate(player.image,2).get_rect
+        print(player.dir)
     
     pygame.quit()
 

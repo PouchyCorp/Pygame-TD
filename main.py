@@ -19,6 +19,7 @@ bulletWidth = 10
 bulletHeight = 10
 
 playerImage = pygame.image.load('Trollface.jpg')
+movDir = pygame.math.Vector2(0,0)
 
 class Bullet:
     def __init__(self,x,y,width,height,dir,vel):
@@ -36,23 +37,43 @@ class Player:
         self.y = y
         self.width = width
         self.height = height
-        self.dir = pygame.math.Vector2((self.x+width/2) - (self.x+width/2),
-                                       (self.y)-(self.y+height/2))
+        self.dir = pygame.math.Vector2(-1,0)
         self.vel = vel
         self.image = pygame.transform.scale(playerImage,(self.width,self.height))
         self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
         
     
-    def basicPlayerMov(self,keys):              
+    def basicPlayerMov(self,keys,movDir):    
+
         if keys[pygame.K_LEFT] and self.x - PLAYER_VEL >= 0:
             self.x -= PLAYER_VEL
+            movDir[0] = -1
+            movDir[1] = 0
         if keys[pygame.K_RIGHT] and self.x + PLAYER_VEL + PLAYER_WIDTH <= WIDTH:
             self.x += PLAYER_VEL
+            movDir[0] = 1
+            movDir[1] = 0
         if keys[pygame.K_DOWN] and self.y + PLAYER_VEL + PLAYER_HEIGHT <= HEIGHT:
             self.y += PLAYER_VEL
+            movDir[0] = 0
+            movDir[1] = -1
         if keys[pygame.K_UP]  and self.y - PLAYER_VEL >= 0:
             self.y -= PLAYER_VEL
+            movDir[0] = 0
+            movDir[1] = 1
+
+        return movDir
          
+    def orientation(self,movDir):
+        
+        if movDir != [0,0]:
+            angle = self.dir.angle_to(movDir)
+            self.dir = movDir.copy()
+            rotatedImage = pygame.transform.rotate(self.image,angle)
+            self.image = rotatedImage
+            self.rect = rotatedImage.get_rect(center=self.rect.center)
     
 
 def draw(player, wall, enemies, bullets):   #dessine chaque element de la scene
@@ -140,7 +161,7 @@ def main():
     enemySpawnIncrement = 0
     enemySpawnRate = 4
 
-    while run:
+    while run: #--------------------------------------------------------------------------------------------------------------------------#
 
         #tick par seconde du gaming
 
@@ -170,8 +191,8 @@ def main():
                 break
         
         #deplacement du joueur (voir class Player)
-
-        player.basicPlayerMov(pygame.key.get_pressed())
+        keys = pygame.key.get_pressed()
+        player.basicPlayerMov(keys,movDir)
         playerXYSync(player)
 
         #collision du mur avec le joueur UwU
@@ -192,13 +213,13 @@ def main():
             playerBulletsInit(player,bullets)
         playerWeapon(player,bullets,enemies,wall)
 
+        #entity orientation
+
+        player.orientation(movDir)
+
         #object rendering
 
         draw(player, wall, enemies, bullets)
-
-        #debug
-        pygame.transform.rotate(player.image,2).get_rect
-        print(player.dir)
     
     pygame.quit()
 

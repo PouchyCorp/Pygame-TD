@@ -14,8 +14,8 @@ playerImage = pygame.image.load('Trollface.jpg')
 movDir = pygame.math.Vector2(0,0)
 
 enemyNumber = 3
-enemyWidth = 60
-enemyHeight = 60
+enemyWidth = 100
+enemyHeight = 100
 enemyImage = pygame.image.load('axel.jpg')
 
 bulletWidth = 10
@@ -114,8 +114,8 @@ def enemyCollision(self,enemies,dirvect,player):
             if player.rect.colliderect(enemy.rect):
                     player.x = WIDTH/2 - PLAYER_WIDTH/2
                     player.y = HEIGHT/2 - PLAYER_HEIGHT
-            if abs((enemy.x+enemyWidth)-(self.x+enemyWidth))<30 and abs((enemy.y+enemyHeight)-(self.y+enemyHeight))<30 and self != enemy:
-                if math.hypot(enemy.x-player.x, enemy.y-player.y) < math.hypot(self.x-player.x, self.y-player.y):
+            if abs((enemy.rect.x+enemyWidth)-(self.rect.x+enemyWidth))<enemyWidth and abs((enemy.rect.y+enemyHeight)-(self.rect.y+enemyHeight))<enemyHeight and self != enemy:
+                if math.hypot(enemy.rect.x-player.x, enemy.rect.y-player.y) < math.hypot(self.rect.x-player.x, self.rect.y-player.y):
                     dirvect.scale_to_length(4)
                     self.rect.move_ip(-dirvect)
                     print("collision")
@@ -155,8 +155,10 @@ def playerXYSync(player):
      player.rect.x = player.x
      player.rect.y = player.y
 
-     
-    
+def enemyXYSync(enemy):
+    enemy.x = enemy.rect.x
+    enemy.y = enemy.rect.y
+
                      
 
 def main():
@@ -175,7 +177,10 @@ def main():
 
     enemySpawnIncrement = 0
     enemySpawnRate = 4
-
+    enemy = Enemy(0,0,enemyWidth,enemyHeight,3)
+    enemies.append(enemy)
+    enemy = Enemy(500,0,enemyWidth,enemyHeight,3)
+    enemies.append(enemy)
     while run: #--------------------------------------------------------------------------------------------------------------------------#
 
         #tick par seconde du gaming
@@ -192,6 +197,7 @@ def main():
                     enemyX = random.choice([i for i in range(WIDTH)])
                     enemy = Enemy(enemyX,0,enemyWidth,enemyHeight,3)
                     enemies.append(enemy)
+                    print(enemies)
 
         #variable qui definie la position du joueur 
 
@@ -209,6 +215,11 @@ def main():
         keys = pygame.key.get_pressed()
         player.basicPlayerMov(keys,movDir)
         playerXYSync(player)
+
+        #sync du sprite et de la hit box des enemies
+
+        for enemy in enemies:
+            enemyXYSync(enemy)
 
         #collision du mur avec le joueur UwU
         

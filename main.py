@@ -10,16 +10,18 @@ pygame.display.set_caption("UwU")
 PLAYER_WIDTH = 50
 PLAYER_HEIGHT = 50
 PLAYER_VEL = 5
+playerImage = pygame.image.load('Trollface.jpg')
+movDir = pygame.math.Vector2(0,0)
 
 enemyNumber = 3
-enemyWidth = 30
-enemyHeight = 30
+enemyWidth = 60
+enemyHeight = 60
+enemyImage = pygame.image.load('axel.jpg')
 
 bulletWidth = 10
 bulletHeight = 10
 
-playerImage = pygame.image.load('Trollface.jpg')
-movDir = pygame.math.Vector2(0,0)
+
 
 class Bullet:
     def __init__(self,x,y,width,height,dir,vel):
@@ -67,13 +69,25 @@ class Player:
         return movDir
          
     def orientation(self,movDir):
-        
         if movDir != [0,0]:
             angle = self.dir.angle_to(movDir)
             self.dir = movDir.copy()
             rotatedImage = pygame.transform.rotate(self.image,angle)
             self.image = rotatedImage
             self.rect = rotatedImage.get_rect(center=self.rect.center)
+
+class Enemy:
+    def __init__(self,x,y,width,height,vel):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.dir = pygame.math.Vector2(-1,0)
+        self.vel = vel
+        self.image = pygame.transform.scale(enemyImage,(self.width,self.height))
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
     
 
 def draw(player, wall, enemies, bullets):   #dessine chaque element de la scene
@@ -83,7 +97,7 @@ def draw(player, wall, enemies, bullets):   #dessine chaque element de la scene
     for bullet in bullets:
         pygame.draw.rect(WIN, "yellow", bullet)
     for enemy in enemies:
-        pygame.draw.rect(WIN, "blue", enemy)
+        WIN.blit(enemy.image,enemy.rect)
     pygame.display.update()
 
 def enemyDirection(self, player):                               #vecteur de direction de l'enemy
@@ -97,19 +111,20 @@ def enemyDirection(self, player):                               #vecteur de dire
 def enemyCollision(self,enemies,dirvect,player):        
     if dirvect != [0,0] and dirvect is not None :
         for enemy in enemies:
-            if player.rect.colliderect(enemy):
+            if player.rect.colliderect(enemy.rect):
                     player.x = WIDTH/2 - PLAYER_WIDTH/2
                     player.y = HEIGHT/2 - PLAYER_HEIGHT
             if abs((enemy.x+enemyWidth)-(self.x+enemyWidth))<30 and abs((enemy.y+enemyHeight)-(self.y+enemyHeight))<30 and self != enemy:
                 if math.hypot(enemy.x-player.x, enemy.y-player.y) < math.hypot(self.x-player.x, self.y-player.y):
                     dirvect.scale_to_length(4)
-                    self.move_ip(-dirvect)
+                    self.rect.move_ip(-dirvect)
+                    print("collision")
                 else:
                     dirvect.scale_to_length(3)
-                    self.move_ip(dirvect)
+                    self.rect.move_ip(dirvect)
                     return
         dirvect.scale_to_length(3)
-        self.move_ip(dirvect)
+        self.rect.move_ip(dirvect)
         return
     
 
@@ -129,7 +144,7 @@ def playerWeapon (player,bullets,enemies,wall):
         if bullet.rect.colliderect(wall) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y <0:
                 bullets.remove(bullet)
         for enemy in enemies:
-            if bullet.rect.colliderect(enemy) and bullet in bullets:
+            if bullet.rect.colliderect(enemy.rect) and bullet in bullets:
                 bullets.remove(bullet)
                 enemies.remove(enemy)
         if bullet.dir == 0:
@@ -149,7 +164,7 @@ def main():
 
     player = Player(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT,PLAYER_VEL)   #taille de chaque objet de la scene
     wall = pygame.Rect(100,100,100,100)
-    enemy = pygame.Rect(0,0,30,30)
+    #enemy = pygame.Rect(0,0,30,30)
     enemies = []
     bullets = []
 
@@ -175,7 +190,7 @@ def main():
             enemySpawnIncrement = 0
             for i in range(enemyNumber):               
                     enemyX = random.choice([i for i in range(WIDTH)])
-                    enemy = pygame.Rect(enemyX,0,enemyWidth,enemyHeight)
+                    enemy = Enemy(enemyX,0,enemyWidth,enemyHeight,3)
                     enemies.append(enemy)
 
         #variable qui definie la position du joueur 

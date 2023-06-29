@@ -91,7 +91,7 @@ class Enemy:
     
 
 def draw(player, wall, enemies, bullets):   #dessine chaque element de la scene
-    WIN.fill('black')
+    WIN.fill('pink')
     pygame.draw.rect(WIN, "green", wall)
     WIN.blit(player.image,player.rect)
     for bullet in bullets:
@@ -176,7 +176,7 @@ def main():
     attackSpeedIncrement = 0
 
     enemySpawnIncrement = 0
-    enemySpawnRate = 4
+    enemySpawnRate = 5
     enemy = Enemy(0,0,enemyWidth,enemyHeight,3)
     enemies.append(enemy)
     enemy = Enemy(500,0,enemyWidth,enemyHeight,3)

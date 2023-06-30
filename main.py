@@ -21,7 +21,8 @@ enemyImage = pygame.image.load('axel.jpg')
 bulletWidth = 10
 bulletHeight = 10
 
-
+wallHeight = 150
+wallWidth = 300
 
 class Bullet:
     def __init__(self,x,y,width,height,dir,vel):
@@ -118,7 +119,6 @@ def enemyCollision(self,enemies,dirvect,player):
                 if math.hypot(enemy.rect.x-player.x, enemy.rect.y-player.y) < math.hypot(self.rect.x-player.x, self.rect.y-player.y):
                     dirvect.scale_to_length(4)
                     self.rect.move_ip(-dirvect)
-                    print("collision")
                 else:
                     dirvect.scale_to_length(3)
                     self.rect.move_ip(dirvect)
@@ -126,7 +126,24 @@ def enemyCollision(self,enemies,dirvect,player):
         dirvect.scale_to_length(3)
         self.rect.move_ip(dirvect)
         return
-    
+        
+def enemyWallCollision(enemy,wall):
+    x , y = enemy.rect.center 
+    if enemy.rect.colliderect(wall):
+        if abs(wall.x - x) < abs(wall.y - y) and abs(wall.x - x) < abs(wall.y+wallHeight - y) and abs(wall.x - x) < abs(wall.x+wallWidth - x):
+            print('gauche')
+            x -= abs(wall.x - x)/2
+        elif abs(wall.x+wallWidth - x) < abs(wall.y - y) and abs(wall.x+wallWidth - x) < abs(wall.y+wallHeight - y) and abs(wall.x+wallWidth - x) < abs(wall.x - x):
+            print("droite")
+            x += abs(wall.x+wallWidth - x)
+        elif abs(wall.y - y) < abs(wall.x+wallWidth - x) and abs(wall.y - y) < abs(wall.y+wallHeight - y) and abs(wall.y - y) < abs(wall.x - x):
+            print("haut")
+            y -= abs(wall.y - y)
+        elif abs(wall.y+wallHeight - y) < abs(wall.y - y) and abs(wall.y+wallHeight - y) < abs(wall.x+wallWidth - x) and abs(wall.y+wallHeight - y) < abs(wall.x - x):
+            print("bas")
+            y += abs(wall.y+wallHeight - y)
+        enemy.rect.x = x - enemy.width/2
+        enemy.rect.y = y - enemy.height/2
 
 def playerBulletsInit (player,bullets):            
      global bullet
@@ -164,9 +181,8 @@ def enemyXYSync(enemy):
 def main():
     run = True
 
-    player = Player(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT,PLAYER_VEL)   #taille de chaque objet de la scene
-    wall = pygame.Rect(100,100,100,100)
-    #enemy = pygame.Rect(0,0,30,30)
+    player = Player(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT + 50, PLAYER_WIDTH, PLAYER_HEIGHT,PLAYER_VEL)   #taille de chaque objet de la scene
+    wall = pygame.Rect(200,200,wallWidth,wallHeight)
     enemies = []
     bullets = []
 
@@ -177,9 +193,8 @@ def main():
 
     enemySpawnIncrement = 0
     enemySpawnRate = 5
-    enemy = Enemy(0,0,enemyWidth,enemyHeight,3)
-    enemies.append(enemy)
-    enemy = Enemy(500,0,enemyWidth,enemyHeight,3)
+
+    enemy = Enemy(100,0,enemyWidth,enemyHeight,3)
     enemies.append(enemy)
     while run: #--------------------------------------------------------------------------------------------------------------------------#
 
@@ -189,22 +204,19 @@ def main():
 
         #fait spawn les noobies
 
-        enemySpawnIncrement += enemySpawnRate
-        if enemySpawnIncrement >= 1000:
-            enemySpawnRate += 0.01
-            enemySpawnIncrement = 0
-            for i in range(enemyNumber):               
-                    enemyX = random.choice([i for i in range(WIDTH)])
-                    enemy = Enemy(enemyX,0,enemyWidth,enemyHeight,3)
-                    enemies.append(enemy)
-                    print(enemies)
+#        enemySpawnIncrement += enemySpawnRate
+#        if enemySpawnIncrement >= 1000:
+#            enemySpawnRate += 0.01
+#            enemySpawnIncrement = 0
+#            for i in range(enemyNumber):               
+#                    enemyX = random.choice([i for i in range(WIDTH)])
+#                    enemy = Enemy(enemyX,0,enemyWidth,enemyHeight,3)
+#                    enemies.append(enemy)
 
         #variable qui definie la position du joueur 
 
-        playerXPrev = player.x  
-        playerXPrev = playerXPrev    
-        playerYPrev = player.x
-        playerYPrev = playerYPrev
+        playerXPrev = player.x   
+        playerYPrev = player.y
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -229,15 +241,16 @@ def main():
 
         for enemy in enemies:
             enemyCollision(enemy,enemies,enemyDirection(enemy,player),player)
-            
+            enemyWallCollision(enemy,wall)
+
         #bullet firing
 
-        attackSpeedIncrement += clock.get_fps()/attackSpeed
-        if attackSpeedIncrement >= clock.get_fps() and clock.get_fps() != 0:
-            print(clock.get_fps())
-            attackSpeedIncrement = 0
-            playerBulletsInit(player,bullets)
-        playerWeapon(player,bullets,enemies,wall)
+#        attackSpeedIncrement += clock.get_fps()/attackSpeed
+#        if attackSpeedIncrement >= clock.get_fps() and clock.get_fps() != 0:
+#            print(clock.get_fps())
+#            attackSpeedIncrement = 0
+#            playerBulletsInit(player,bullets)
+#        playerWeapon(player,bullets,enemies,wall)
 
         #entity orientation
 

@@ -132,18 +132,16 @@ def enemyWallCollision(enemy,wall):
     if enemy.rect.colliderect(wall):
         if abs(wall.x - x) < abs(wall.y - y) and abs(wall.x - x) < abs(wall.y+wallHeight - y) and abs(wall.x - x) < abs(wall.x+wallWidth - x):
             print('gauche')
-            x -= abs(wall.x - x)/2
+            enemy.rect.x -= abs(wall.x - (enemy.rect.x+enemy.width))
         elif abs(wall.x+wallWidth - x) < abs(wall.y - y) and abs(wall.x+wallWidth - x) < abs(wall.y+wallHeight - y) and abs(wall.x+wallWidth - x) < abs(wall.x - x):
             print("droite")
-            x += abs(wall.x+wallWidth - x)
+            enemy.rect.x += abs(wall.x+wallWidth - enemy.rect.x)
         elif abs(wall.y - y) < abs(wall.x+wallWidth - x) and abs(wall.y - y) < abs(wall.y+wallHeight - y) and abs(wall.y - y) < abs(wall.x - x):
             print("haut")
-            y -= abs(wall.y - y)
+            enemy.rect.y -= abs(wall.y - (enemy.rect.y+enemy.height))
         elif abs(wall.y+wallHeight - y) < abs(wall.y - y) and abs(wall.y+wallHeight - y) < abs(wall.x+wallWidth - x) and abs(wall.y+wallHeight - y) < abs(wall.x - x):
             print("bas")
-            y += abs(wall.y+wallHeight - y)
-        enemy.rect.x = x - enemy.width/2
-        enemy.rect.y = y - enemy.height/2
+            enemy.rect.y += abs(wall.y+wallHeight - enemy.rect.y)
 
 def playerBulletsInit (player,bullets):            
      global bullet

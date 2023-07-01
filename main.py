@@ -127,9 +127,11 @@ def enemyCollision(self,enemies,dirvect,player):
         self.rect.move_ip(dirvect)
         return
         
-def enemyWallCollision(enemy,wall):
-    x , y = enemy.rect.center 
+def enemyWallCollision(enemy,wall,enemies,player):
+    x , y = enemy.rect.center
+    not_collided = True 
     if enemy.rect.colliderect(wall):
+        not_collided = False
         if abs(wall.x - x) < abs(wall.y - y) and abs(wall.x - x) < abs(wall.y+wallHeight - y) and abs(wall.x - x) < abs(wall.x+wallWidth - x):
             print('gauche')
             enemy.rect.x -= abs(wall.x - (enemy.rect.x+enemy.width))
@@ -142,6 +144,8 @@ def enemyWallCollision(enemy,wall):
         elif abs(wall.y+wallHeight - y) < abs(wall.y - y) and abs(wall.y+wallHeight - y) < abs(wall.x+wallWidth - x) and abs(wall.y+wallHeight - y) < abs(wall.x - x):
             print("bas")
             enemy.rect.y += abs(wall.y+wallHeight - enemy.rect.y)
+    if not_collided:
+        enemyCollision(enemy,enemies,enemyDirection(enemy,player),player)
 
 def playerBulletsInit (player,bullets):            
      global bullet
@@ -202,14 +206,14 @@ def main():
 
         #fait spawn les noobies
 
-#        enemySpawnIncrement += enemySpawnRate
-#        if enemySpawnIncrement >= 1000:
-#            enemySpawnRate += 0.01
-#            enemySpawnIncrement = 0
-#            for i in range(enemyNumber):               
-#                    enemyX = random.choice([i for i in range(WIDTH)])
-#                    enemy = Enemy(enemyX,0,enemyWidth,enemyHeight,3)
-#                    enemies.append(enemy)
+        enemySpawnIncrement += enemySpawnRate
+        if enemySpawnIncrement >= 1000:
+            enemySpawnRate += 0.01
+            enemySpawnIncrement = 0
+            for i in range(enemyNumber):               
+                    enemyX = random.choice([i for i in range(WIDTH)])
+                    enemy = Enemy(enemyX,0,enemyWidth,enemyHeight,3)
+                    enemies.append(enemy)
 
         #variable qui definie la position du joueur 
 
@@ -238,8 +242,7 @@ def main():
             player.y = playerYPrev    
 
         for enemy in enemies:
-            enemyCollision(enemy,enemies,enemyDirection(enemy,player),player)
-            enemyWallCollision(enemy,wall)
+            enemyWallCollision(enemy,wall,enemies,player)
 
         #bullet firing
 

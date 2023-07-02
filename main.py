@@ -3,7 +3,7 @@ import random
 import math
 
 
-WIDTH, HEIGHT = 750, 750
+WIDTH, HEIGHT = 1000, 1000
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("UwU")
 
@@ -21,8 +21,8 @@ enemyImage = pygame.image.load('axel.jpg')
 bulletWidth = 10
 bulletHeight = 10
 
-wallHeight = 150
-wallWidth = 300
+wallHeight = 200
+wallWidth = 400
 
 class Bullet:
     def __init__(self,x,y,width,height,dir,vel):
@@ -109,7 +109,7 @@ def enemyDirection(self, player):                               #vecteur de dire
                 return dirvect
             
 
-def enemyCollision(self,enemies,dirvect,player):        
+def enemyEnemyCollisionAndMov(self,enemies,dirvect,player):        
     if dirvect != [0,0] and dirvect is not None :
         for enemy in enemies:
             if player.rect.colliderect(enemy.rect):
@@ -120,32 +120,53 @@ def enemyCollision(self,enemies,dirvect,player):
                     dirvect.scale_to_length(4)
                     self.rect.move_ip(-dirvect)
                 else:
-                    dirvect.scale_to_length(3)
+                    dirvect.scale_to_length(enemy.vel)
                     self.rect.move_ip(dirvect)
                     return
-        dirvect.scale_to_length(3)
+        dirvect.scale_to_length(enemy.vel)
         self.rect.move_ip(dirvect)
         return
         
 def enemyWallCollision(enemy,wall,enemies,player):
     x , y = enemy.rect.center
-    not_collided = True 
+    not_collided = True
+    distMurGauche = abs(wall.x - (enemy.rect.x+enemy.width))
+    distMurDroit = abs((wall.x+wallWidth) - enemy.rect.x)
+    distMurHaut = abs(wall.y - (enemy.rect.y+enemy.height))
+    distMurBas = abs((wall.y+wallHeight) - enemy.rect.y)
     if enemy.rect.colliderect(wall):
         not_collided = False
-        if abs(wall.x - x) < abs(wall.y - y) and abs(wall.x - x) < abs(wall.y+wallHeight - y) and abs(wall.x - x) < abs(wall.x+wallWidth - x):
+        if distMurGauche < distMurBas and distMurGauche < distMurHaut:
             print('gauche')
-            enemy.rect.x -= abs(wall.x - (enemy.rect.x+enemy.width))
-        elif abs(wall.x+wallWidth - x) < abs(wall.y - y) and abs(wall.x+wallWidth - x) < abs(wall.y+wallHeight - y) and abs(wall.x+wallWidth - x) < abs(wall.x - x):
+            enemy.rect.x -= distMurGauche
+            if player.y > y:
+                enemy.rect.y += enemy.vel 
+            else:
+                enemy.rect.y -= enemy.vel
+        elif distMurDroit < distMurBas and distMurDroit < distMurHaut:
             print("droite")
             enemy.rect.x += abs(wall.x+wallWidth - enemy.rect.x)
-        elif abs(wall.y - y) < abs(wall.x+wallWidth - x) and abs(wall.y - y) < abs(wall.y+wallHeight - y) and abs(wall.y - y) < abs(wall.x - x):
+            if player.y > y:
+                enemy.rect.y += enemy.vel 
+            else:
+                enemy.rect.y -= enemy.vel
+        elif distMurHaut < distMurDroit and distMurHaut < distMurGauche:
             print("haut")
             enemy.rect.y -= abs(wall.y - (enemy.rect.y+enemy.height))
-        elif abs(wall.y+wallHeight - y) < abs(wall.y - y) and abs(wall.y+wallHeight - y) < abs(wall.x+wallWidth - x) and abs(wall.y+wallHeight - y) < abs(wall.x - x):
+            if player.x > x:
+                enemy.rect.x += enemy.vel 
+            else:
+                enemy.rect.x -= enemy.vel
+                print('uwu')
+        elif distMurBas < distMurDroit and distMurBas < distMurGauche:
             print("bas")
             enemy.rect.y += abs(wall.y+wallHeight - enemy.rect.y)
+            if player.x > x:
+                enemy.rect.x += enemy.vel 
+            else:
+                enemy.rect.x -= enemy.vel
     if not_collided:
-        enemyCollision(enemy,enemies,enemyDirection(enemy,player),player)
+        enemyEnemyCollisionAndMov(enemy,enemies,enemyDirection(enemy,player),player)
 
 def playerBulletsInit (player,bullets):            
      global bullet

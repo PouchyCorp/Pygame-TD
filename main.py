@@ -78,6 +78,15 @@ class Player:
             rotatedImage = pygame.transform.rotate(self.image,angle)
             self.image = rotatedImage
             self.rect = rotatedImage.get_rect(center=self.rect.center)
+    
+    def collision(self,enemies,wall,playerXPrev,playerYPrev,borderLines):
+        for enemy in enemies:
+            if self.rect.colliderect(enemy.rect):
+                        self.x = WIDTH/2 - PLAYER_WIDTH/2
+                        self.y = HEIGHT/2 - PLAYER_HEIGHT
+        if self.rect.colliderect(wall) or self.rect.collidelistall(borderLines):
+            self.x = playerXPrev
+            self.y = playerYPrev
 
 class Enemy:
     def __init__(self,x,y,width,height,vel):
@@ -91,10 +100,23 @@ class Enemy:
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
+
+class BorderLine:
+        
+        def __init__(self,x,y,width,height,borderLines):
+            borderLines.append(self)
+            self.x = x
+            self.y = y
+            self.width = width
+            self.height = height
+            self.rect = pygame.Rect(self.x,self.y,self.width,self.height)
+
     
 
-def draw(player, wall, enemies, bullets):   #dessine chaque element de la scene
+def draw(player, wall, enemies, bullets, borderLines):   #dessine chaque element de la scene
     WIN.blit(floorImage,WIN.get_rect())
+    for borderLine in borderLines:
+        pygame.draw.rect(WIN,"red",borderLine.rect)
     pygame.draw.rect(WIN, "green", wall)
     WIN.blit(player.image,player.rect)
     for bullet in bullets:
@@ -114,9 +136,6 @@ def enemyDirection(self, player):                               #vecteur de dire
 def enemyEnemyCollisionAndMov(self,enemies,dirvect,player):        
     if dirvect != [0,0] and dirvect is not None :
         for enemy in enemies:
-            if player.rect.colliderect(enemy.rect):
-                    player.x = WIDTH/2 - PLAYER_WIDTH/2
-                    player.y = HEIGHT/2 - PLAYER_HEIGHT
             if abs((enemy.rect.x+enemyWidth)-(self.rect.x+enemyWidth))<enemyWidth and abs((enemy.rect.y+enemyHeight)-(self.rect.y+enemyHeight))<enemyHeight and self != enemy:
                 if math.hypot(enemy.rect.x-player.x, enemy.rect.y-player.y) < math.hypot(self.rect.x-player.x, self.rect.y-player.y):
                     dirvect.scale_to_length(4)
@@ -176,14 +195,15 @@ def playerBulletsInit (player,bullets):
      return bullets
 
 
-def playerWeapon (player,bullets,enemies,wall):
+def playerWeapon (player,bullets,enemies,wall,borderLines):
     mouse_x, mouse_y = pygame.mouse.get_pos()
     mouseDir = pygame.math.Vector2(player.x - mouse_x,
                                     player.y - mouse_y)
     mouseDir.scale_to_length(7)
     for bullet in bullets:
-        if bullet.rect.colliderect(wall) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y <0:
+        if bullet.rect.colliderect(wall) or bullet.rect.collidelistall(borderLines) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y <0:
                 bullets.remove(bullet)
+                print('uwu')
         for enemy in enemies:
             if bullet.rect.colliderect(enemy.rect) and bullet in bullets:
                 bullets.remove(bullet)
@@ -207,16 +227,21 @@ def main():
 
     player = Player(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT + 50, PLAYER_WIDTH, PLAYER_HEIGHT,PLAYER_VEL)   #taille de chaque objet de la scene
     wall = pygame.Rect(200,200,wallWidth,wallHeight)
+
+    borderLines = []
     enemies = []
     bullets = []
 
     clock = pygame.time.Clock()
 
-    attackSpeed = 60
+    attackSpeed = 30
     attackSpeedIncrement = 0
 
     enemySpawnIncrement = 0
     enemySpawnRate = 5
+
+    BorderLine(590,600,10,500,borderLines)
+    BorderLine(600,600,500,10,borderLines)
 
     enemy = Enemy(100,0,enemyWidth,enemyHeight,3)
     enemies.append(enemy)
@@ -258,11 +283,7 @@ def main():
         for enemy in enemies:
             enemyXYSync(enemy)
 
-        #collision du mur avec le joueur UwU
-        
-        if player.rect.colliderect(wall):
-            player.x = playerXPrev
-            player.y = playerYPrev    
+        #collision du mur avec le joueur UwU    
 
         for enemy in enemies:
             enemyWallCollision(enemy,wall,enemies,player)
@@ -274,15 +295,15 @@ def main():
                 print(clock.get_fps())
                 attackSpeedIncrement = 0
                 playerBulletsInit(player,bullets)
-            playerWeapon(player,bullets,enemies,wall)
+            playerWeapon(player,bullets,enemies,wall,borderLines)
 
         #entity orientation
-
+        player.collision(enemies,wall,playerXPrev,playerYPrev,borderLines)
         player.orientation(movDir)
 
         #object rendering
 
-        draw(player, wall, enemies, bullets)
+        draw(player, wall, enemies, bullets, borderLines)
     
     pygame.quit()
 

@@ -129,44 +129,43 @@ def enemyEnemyCollisionAndMov(self,enemies,dirvect,player):
         
 def enemyWallCollision(enemy,wall,enemies,player):
     x , y = enemy.rect.center
-    not_collided = True
+
     distMurGauche = abs(wall.x - (enemy.rect.x+enemy.width))
     distMurDroit = abs((wall.x+wallWidth) - enemy.rect.x)
     distMurHaut = abs(wall.y - (enemy.rect.y+enemy.height))
     distMurBas = abs((wall.y+wallHeight) - enemy.rect.y)
+
+    enemyEnemyCollisionAndMov(enemy,enemies,enemyDirection(enemy,player),player)
+
     if enemy.rect.colliderect(wall):
-        not_collided = False
-        if distMurGauche < distMurBas and distMurGauche < distMurHaut:
-            print('gauche')
+        if distMurGauche < distMurBas and distMurGauche < distMurHaut:      #mur gauche
             enemy.rect.x -= distMurGauche
             if player.y > y:
-                enemy.rect.y += enemy.vel 
+                enemy.rect.y += enemy.vel/2
             else:
-                enemy.rect.y -= enemy.vel
-        elif distMurDroit < distMurBas and distMurDroit < distMurHaut:
-            print("droite")
+                enemy.rect.y -= enemy.vel/2
+
+        elif distMurDroit < distMurBas and distMurDroit < distMurHaut:      #mur droit
             enemy.rect.x += abs(wall.x+wallWidth - enemy.rect.x)
             if player.y > y:
-                enemy.rect.y += enemy.vel 
+                enemy.rect.y += enemy.vel/2
             else:
-                enemy.rect.y -= enemy.vel
-        elif distMurHaut < distMurDroit and distMurHaut < distMurGauche:
-            print("haut")
+                enemy.rect.y -= enemy.vel/2
+
+        elif distMurHaut < distMurDroit and distMurHaut < distMurGauche:    #mur haut
             enemy.rect.y -= abs(wall.y - (enemy.rect.y+enemy.height))
             if player.x > x:
-                enemy.rect.x += enemy.vel 
+                enemy.rect.x += enemy.vel/2
             else:
-                enemy.rect.x -= enemy.vel
-                print('uwu')
-        elif distMurBas < distMurDroit and distMurBas < distMurGauche:
-            print("bas")
+                enemy.rect.x -= enemy.vel/2
+
+        elif distMurBas < distMurDroit and distMurBas < distMurGauche:      #mur bas
             enemy.rect.y += abs(wall.y+wallHeight - enemy.rect.y)
             if player.x > x:
-                enemy.rect.x += enemy.vel 
+                enemy.rect.x += enemy.vel/2 
             else:
-                enemy.rect.x -= enemy.vel
-    if not_collided:
-        enemyEnemyCollisionAndMov(enemy,enemies,enemyDirection(enemy,player),player)
+                enemy.rect.x -= enemy.vel/2
+        
 
 def playerBulletsInit (player,bullets):            
      global bullet
@@ -227,14 +226,15 @@ def main():
 
         #fait spawn les noobies
 
-        enemySpawnIncrement += enemySpawnRate
-        if enemySpawnIncrement >= 1000:
-            enemySpawnRate += 0.01
-            enemySpawnIncrement = 0
-            for i in range(enemyNumber):               
-                    enemyX = random.choice([i for i in range(WIDTH)])
-                    enemy = Enemy(enemyX,0,enemyWidth,enemyHeight,3)
-                    enemies.append(enemy)
+        if True:
+            enemySpawnIncrement += enemySpawnRate
+            if enemySpawnIncrement >= 1000:
+                enemySpawnRate += 0.01
+                enemySpawnIncrement = 0
+                for i in range(enemyNumber):               
+                        enemyX = random.choice([i for i in range(WIDTH)])
+                        enemy = Enemy(enemyX,0,enemyWidth,enemyHeight,3)
+                        enemies.append(enemy)
 
         #variable qui definie la position du joueur 
 
@@ -266,13 +266,13 @@ def main():
             enemyWallCollision(enemy,wall,enemies,player)
 
         #bullet firing
-
-#        attackSpeedIncrement += clock.get_fps()/attackSpeed
-#        if attackSpeedIncrement >= clock.get_fps() and clock.get_fps() != 0:
-#            print(clock.get_fps())
-#            attackSpeedIncrement = 0
-#            playerBulletsInit(player,bullets)
-#        playerWeapon(player,bullets,enemies,wall)
+        if True:
+            attackSpeedIncrement += clock.get_fps()/attackSpeed
+            if attackSpeedIncrement >= clock.get_fps() and clock.get_fps() != 0:
+                print(clock.get_fps())
+                attackSpeedIncrement = 0
+                playerBulletsInit(player,bullets)
+            playerWeapon(player,bullets,enemies,wall)
 
         #entity orientation
 

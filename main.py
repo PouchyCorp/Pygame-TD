@@ -6,17 +6,19 @@ import math
 WIDTH, HEIGHT = 1000, 1000
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("UwU")
+floorImage = pygame.image.load('floorImage1.png')
+floorImage = pygame.transform.scale(floorImage,(WIDTH,HEIGHT))
 
 PLAYER_WIDTH = 50
 PLAYER_HEIGHT = 50
 PLAYER_VEL = 5
-playerImage = pygame.image.load('Trollface.jpg')
+playerImage = pygame.image.load('playerImage.jpg')
 movDir = pygame.math.Vector2(0,0)
 
 enemyNumber = 3
 enemyWidth = 100
 enemyHeight = 100
-enemyImage = pygame.image.load('axel.jpg')
+enemyImage = pygame.image.load('enemyImage.jpg')
 
 bulletWidth = 10
 bulletHeight = 10
@@ -92,7 +94,7 @@ class Enemy:
     
 
 def draw(player, wall, enemies, bullets):   #dessine chaque element de la scene
-    WIN.fill('pink')
+    WIN.blit(floorImage,WIN.get_rect())
     pygame.draw.rect(WIN, "green", wall)
     WIN.blit(player.image,player.rect)
     for bullet in bullets:

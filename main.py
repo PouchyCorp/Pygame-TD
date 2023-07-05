@@ -5,12 +5,12 @@ import math
 
 WIDTH, HEIGHT = 1000, 1000
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("UwU")
+pygame.display.set_caption("Pouchy's Lore")
 floorImage = pygame.image.load('floorImage1.png')
 floorImage = pygame.transform.scale(floorImage,(WIDTH,HEIGHT))
 
-PLAYER_WIDTH = 50
-PLAYER_HEIGHT = 50
+PLAYER_WIDTH = 75
+PLAYER_HEIGHT = 75
 PLAYER_VEL = 5
 playerImage = pygame.image.load('playerImage.jpg')
 movDir = pygame.math.Vector2(0,0)
@@ -245,6 +245,9 @@ def main():
 
     enemy = Enemy(100,0,enemyWidth,enemyHeight,3)
     enemies.append(enemy)
+
+
+
     while run: #--------------------------------------------------------------------------------------------------------------------------#
 
         #tick par seconde du gaming

@@ -48,15 +48,17 @@ def levelEditor(mouseXY):
         print(x_1,y_1)
         return x_1,y_1
     
-    
-while True:
+run = True
+while run:
 
     mouseXY = pygame.mouse.get_pos()
 
     for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                pygame.quit()
+                for rect in rects:
+                    print("BorderLine(,",str(rect.x),',',str(rect.y),',',str(rect.width),',',str(rect.height),',borderLines)')
+                
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 levelEditor(mouseXY)
@@ -66,3 +68,4 @@ while True:
 
     
     draw(rects)
+pygame.quit()

@@ -11,7 +11,7 @@ floorImage = pygame.transform.scale(floorImage,(WIDTH,HEIGHT))
 
 PLAYER_WIDTH = 75
 PLAYER_HEIGHT = 75
-PLAYER_VEL = 5
+PLAYER_VEL = 4
 playerImage = pygame.image.load('playerImage.jpg')
 movDir = pygame.math.Vector2(0,0)
 
@@ -239,9 +239,10 @@ def main():
 
     enemySpawnIncrement = 0
     enemySpawnRate = 5
-
-    BorderLine(590,600,10,500,borderLines)
-    BorderLine(600,600,500,10,borderLines)
+    BorderLine( 100 , 101 , 10 , 786 ,borderLines)
+    BorderLine( 100 , 887 , 800 , 10 ,borderLines)
+    BorderLine( 101 , 101 , 799 , 10 ,borderLines)
+    BorderLine( 888 , 102 , 10 , 796 ,borderLines)
 
     enemy = Enemy(100,0,enemyWidth,enemyHeight,3)
     enemies.append(enemy)

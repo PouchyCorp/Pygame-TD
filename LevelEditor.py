@@ -5,9 +5,10 @@ pygame.init()
 WIDTH, HEIGHT = 1000, 1000
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pouchy's Lore Level Editor")
+grid = pygame.image.load('Frame_4casequadril.png')
 
 def draw(rects):
-    WIN.fill("white")
+    WIN.blit(grid,WIN.get_rect())
     for rect in rects:
         pygame.draw.rect(WIN,"red",rect)
     if pygame.font:
@@ -57,8 +58,7 @@ while run:
             if event.type == pygame.QUIT:
                 run = False
                 for rect in rects:
-                    print("BorderLine(,",str(rect.x),',',str(rect.y),',',str(rect.width),',',str(rect.height),',borderLines)')
-                
+                    print("BorderLine(",str(rect.x),',',str(rect.y),',',str(rect.width),',',str(rect.height),',borderLines)')
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 levelEditor(mouseXY)

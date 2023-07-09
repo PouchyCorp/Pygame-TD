@@ -26,6 +26,13 @@ bulletHeight = 10
 wallHeight = 200
 wallWidth = 400
 
+currentLevel = 0
+
+borderLines = []
+enemies = []
+bullets = []
+levels = []
+
 class Level:
     def __init__(self,number,enemyCount,playerStartPos,roomType,enemyDiff,levels):
         levels.append(self)
@@ -204,6 +211,14 @@ def enemyWallCollision(enemy, wall, enemies, player):
             else:
                 enemy.rect.x -= enemy.vel/2
 
+def levelManager(levels,enemies):
+    global gameOver,currentLevel
+    if enemies == []:
+        gameOver = True
+        if currentLevel != len(levels)-1:
+            currentLevel = currentLevel + 1
+            enemySpawner(enemies,levels,currentLevel)
+
 
 def playerBulletsInit(player, bullets):
     global bullet
@@ -240,8 +255,8 @@ def enemyXYSync(enemy):
     enemy.x = enemy.rect.x
     enemy.y = enemy.rect.y
 
-def enemySpawner(enemies,levels):
-    for i in range(levels[0].enemyCount):
+def enemySpawner(enemies,levels,currentLevel):
+    for i in range(levels[currentLevel].enemyCount):
         enemyX = random.choice([i for i in range(WIDTH)])
         Enemy(enemyX, 0, enemyWidth, enemyHeight, 3, enemies)
 
@@ -249,22 +264,17 @@ def enemySpawner(enemies,levels):
 def main():
     run = True
 
-    player = Player(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT + 50,
-                    PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_VEL)  # taille de chaque objet de la scene
-    wall = pygame.Rect(1000, 2000, wallWidth, wallHeight)
-
-    borderLines = []
-    enemies = []
-    bullets = []
-    levels = []
-
     clock = pygame.time.Clock()
+
+    player = Player(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT + 50,
+            PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_VEL)
+        
+    wall = pygame.Rect(1000, 2000, wallWidth, wallHeight)
 
     attackSpeed = 30
     attackSpeedIncrement = 0
 
-    enemySpawnIncrement = 0
-    enemySpawnRate = 5
+    gameOver = True
 
     BorderLine(100, 101, 10, 786, borderLines)
     BorderLine(100, 887, 800, 10, borderLines)
@@ -273,16 +283,18 @@ def main():
 
     Level(0,5,(500,500),1,1,levels)
     Level(1,10,(500,500),1,2,levels)
-
-    enemySpawner(enemies,levels)
-
+    
+    # fait spawn les noobies
+    
+    enemySpawner(enemies,levels,currentLevel)
+    
     while run:  # --------------------------------------------------------------------------------------------------------------------------#
-
+        
         # tick par seconde du gaming
 
         clock.tick(60)
 
-        # fait spawn les noobies
+        
 
         
                 
@@ -330,7 +342,7 @@ def main():
 
         #level management
 
-        levelManager(levels,enemies,gameOver)
+        levelManager(levels,enemies)
 
         # object rendering
 

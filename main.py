@@ -212,12 +212,13 @@ def enemyWallCollision(enemy, wall, enemies, player):
                 enemy.rect.x -= enemy.vel/2
 
 def levelManager(levels,enemies):
-    global gameOver,currentLevel
+    global gameOver,currentLevel,player
     if enemies == []:
         gameOver = True
         if currentLevel != len(levels)-1:
             currentLevel = currentLevel + 1
             enemySpawner(enemies,levels,currentLevel)
+            player.x,player.y = levels[currentLevel].playerStartPos
 
 
 def playerBulletsInit(player, bullets):
@@ -266,7 +267,17 @@ def main():
 
     clock = pygame.time.Clock()
 
-    player = Player(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT + 50,
+    BorderLine(100, 101, 10, 786, borderLines)
+    BorderLine(100, 887, 800, 10, borderLines)
+    BorderLine(101, 101, 799, 10, borderLines)
+    BorderLine(888, 102, 10, 796, borderLines)
+
+    Level(0,5,(500,500),1,1,levels)
+    Level(1,10,(400,400),1,2,levels)
+    Level(2,15,(300,300),1,3,levels)
+
+    global player
+    player = Player(levels[currentLevel].playerStartPos[0], levels[currentLevel].playerStartPos[1],
             PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_VEL)
         
     wall = pygame.Rect(1000, 2000, wallWidth, wallHeight)
@@ -276,13 +287,7 @@ def main():
 
     gameOver = True
 
-    BorderLine(100, 101, 10, 786, borderLines)
-    BorderLine(100, 887, 800, 10, borderLines)
-    BorderLine(101, 101, 799, 10, borderLines)
-    BorderLine(888, 102, 10, 796, borderLines)
 
-    Level(0,5,(500,500),1,1,levels)
-    Level(1,10,(500,500),1,2,levels)
     
     # fait spawn les noobies
     

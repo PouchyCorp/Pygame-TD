@@ -2,61 +2,24 @@ import pygame
 import random
 import math
 
-<<<<<<< Updated upstream
 WIDTH, HEIGHT = 1000, 1000
-=======
-
-
-WIDTH, HEIGHT = 750, 750
->>>>>>> Stashed changes
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pouchy's Lore")
 floorImage = pygame.image.load('floorImage1.png')
 floorImage = pygame.transform.scale(floorImage, (WIDTH, HEIGHT))
 
-<<<<<<< Updated upstream
 PLAYER_WIDTH = 75
 PLAYER_HEIGHT = 75
 PLAYER_VEL = 4
 playerImage = pygame.image.load('playerImage.jpg')
 movDir = pygame.math.Vector2(0, 0)
 last_dash_time = 0 
-=======
-list_sec = list(range(50, 200))
-
-pygame.font.init()
-def draw_text (color, text, font, x, y):
-     myfont = pygame.font.SysFont('Comic Sans MS', 30)
-     textsurface = myfont.render('pipi?', True, (0, 255, 0))
-     WIN.blit(textsurface,(45,45))
-
-x = random.choice(list_sec)
-y = random.choice(list_sec)
-z = random.choice(list_sec)
-v = random.choice(list_sec)
-
-print(x)
-print(y)
-print(z)
-print(v)
-
-
-AXE_4 = int(v)
-AXE_3 = int(z)
-AXE_2 = int(y)
-AXE_1 = int(x)
-
-PLAYER_WIDTH = 50
-PLAYER_HEIGHT = 50
-PLAYER_VEL = 5
->>>>>>> Stashed changes
 
 enemyNumber = 3
 enemyWidth = 100
 enemyHeight = 100
 enemyImage = pygame.image.load('enemyImage.jpg')
 
-<<<<<<< Updated upstream
 bulletWidth = 10
 bulletHeight = 10
 
@@ -84,8 +47,6 @@ class Level:
         self.enemyDiff = enemyDiff
     
 
-=======
->>>>>>> Stashed changes
 class Bullet:
     def __init__(self, x, y, width, height, dir, vel):
         self.x = x
@@ -218,17 +179,6 @@ def draw(player, wall, enemies, bullets, borderLines):  # dessine chaque element
         WIN.blit(enemy.image, enemy.rect)
     pygame.display.update()
 
-<<<<<<< Updated upstream
-=======
-draw_text('pipi?', (3, 56, 56), 450, 450)
-
-def enemyDirection(self, player):                               #vecteur de direction de l'enemy
-            dirvect = pygame.math.Vector2(player.x - self.x,
-                                        player.y - self.y)
-            if dirvect != [0,0]:
-                dirvect.normalize()
-                return dirvect
->>>>>>> Stashed changes
 
 def enemyDirection(self, player):  # vecteur de direction de l'enemy
     dirvect = pygame.math.Vector2(player.x - self.x,
@@ -253,14 +203,6 @@ def enemyEnemyCollisionAndMov(self, enemies, dirvect, player):
         self.rect.move_ip(dirvect)
         return
 
-<<<<<<< Updated upstream
-=======
-def playerBulletsLogic (player,bullets):            
-     global bullet
-     bullet = Bullet(player.x,player.y,10,10,0,4)
-     bullets.append(bullet.rect())
-     return bullets
->>>>>>> Stashed changes
 
 def enemyWallCollision(enemy, wall, enemies, player):
     x, y = enemy.rect.center
@@ -326,7 +268,6 @@ def playerWeapon(player, bullets, enemies, wall, borderLines):
                                    player.y - mouse_y)
     mouseDir.scale_to_length(7)
     for bullet in bullets:
-<<<<<<< Updated upstream
         if bullet.rect.colliderect(wall) or bullet.rect.collidelistall(borderLines) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y < 0:
             bullets.remove(bullet)
             print('uwu')
@@ -337,17 +278,6 @@ def playerWeapon(player, bullets, enemies, wall, borderLines):
         if bullet.dir == 0:
             bullet.dir = -mouseDir
         bullet.rect.move_ip(bullet.dir)
-=======
-        if bullet.colliderect(wall) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y <0:
-                bullets.remove(bullet)
-                break
-        for enemy in enemies:
-            if bullet.colliderect(enemy):
-                bullets.remove(bullet)
-                enemies.remove(enemy)
-                break
-        bullet.move_ip(-mouseDir)
->>>>>>> Stashed changes
 
 
 def playerXYSync(player):
@@ -367,15 +297,6 @@ def enemySpawner(enemies,levels,currentLevel):
 
 def main():
     run = True
-<<<<<<< Updated upstream
-=======
-
-    player = pygame.Rect(WIDTH/2 - PLAYER_WIDTH/2, HEIGHT/2 - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)   #taille de chaque objet de la scene
-    wall = pygame.Rect(AXE_1,AXE_2,AXE_3,AXE_4)
-    enemy = pygame.Rect(0,0,30,30)
-    enemies = []
-    bullets = []
->>>>>>> Stashed changes
     clock = pygame.time.Clock()
 
     BorderLine(100, 101, 10, 786, borderLines)
@@ -383,14 +304,9 @@ def main():
     BorderLine(101, 101, 799, 10, borderLines)
     BorderLine(888, 102, 10, 796, borderLines)
 
-<<<<<<< Updated upstream
     Level(0,5,(500,500),1,1,levels)
     Level(1,10,(400,400),1,2,levels)
     Level(2,15,(300,300),1,3,levels)
-=======
-    while run:
-        clock.tick(40)          #tick par seconde du gaming
->>>>>>> Stashed changes
 
     global player
     player = Player(levels[currentLevel].playerStartPos[0], levels[currentLevel].playerStartPos[1],
@@ -428,32 +344,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-<<<<<<< Updated upstream
                 break
-=======
-                break\
-                
-        #collision du mur avec le joueur 
-        if player.colliderect(wall):
-            player.x = playerXPrev  #prend la varible pour 
-            player.y = playerYPrev
-    
-        keys = pygame.key.get_pressed()             #machin pour bouger en faisant cliclic
-        if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:
-            player.x -= PLAYER_VEL
-        if keys[pygame.K_RIGHT] and player.x + PLAYER_VEL + PLAYER_WIDTH <= WIDTH:
-            player.x += PLAYER_VEL
-        if keys[pygame.K_DOWN] and player.y + PLAYER_VEL + PLAYER_HEIGHT <= HEIGHT:
-            player.y += PLAYER_VEL
-        if keys[pygame.K_UP]  and player.y - PLAYER_VEL >= 0:
-            player.y -= PLAYER_VEL
-            
-        for enemy in enemies:
-            enemyCollision(enemy,enemies,enemyDirection(enemy,player),player)
-        
-        playerBulletsLogic(player,bullets)
-        playerWeapon(player,bullets,enemies,wall)
->>>>>>> Stashed changes
 
         # deplacement du joueur (voir class Player)
 

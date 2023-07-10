@@ -2,7 +2,6 @@ import pygame
 import random
 import math
 
-
 WIDTH, HEIGHT = 1000, 1000
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pouchy's Lore")
@@ -14,6 +13,7 @@ PLAYER_HEIGHT = 75
 PLAYER_VEL = 4
 playerImage = pygame.image.load('playerImage.jpg')
 movDir = pygame.math.Vector2(0, 0)
+last_dash_time = 0 
 
 enemyNumber = 3
 enemyWidth = 100
@@ -26,6 +26,10 @@ bulletHeight = 10
 wallHeight = 200
 wallWidth = 400
 
+dash_distance = 5
+cooldown_duration = 3000  # Durée du cooldown en millisecondes
+cooldown_start_time = pygame.time.get_ticks() - cooldown_duration  # Temps de début du cooldown
+
 currentLevel = 0
 
 borderLines = []
@@ -34,7 +38,7 @@ bullets = []
 levels = []
 
 class Level:
-    def __init__(self,number,enemyCount,playerStartPos,roomType,enemyDiff,levels):
+    def __init__(self, number, enemyCount, playerStartPos, roomType, enemyDiff, levels):
         levels.append(self)
         self.number = number
         self.playerStartPos = playerStartPos
@@ -62,13 +66,29 @@ class Player:
         self.height = height
         self.dir = pygame.math.Vector2(-1, 0)
         self.vel = vel
-        self.image = pygame.transform.scale(
-            playerImage, (self.width, self.height))
+        self.image = pygame.transform.scale(playerImage, (self.width, self.height))
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
+        self.cooldown_color = (0, 255, 0)  # Couleur de la jauge de cooldown (vert)
+        self.cooldown_width = self.width  # Largeur initiale de la jauge de cooldown
+
+    def update_cooldown(self):
+        current_time = pygame.time.get_ticks()
+        time_since_last_dash = current_time - last_dash_time
+        cooldown_elapsed = current_time - cooldown_start_time
+        if time_since_last_dash < cooldown_duration:
+            self.cooldown_width = int((cooldown_duration - time_since_last_dash) / cooldown_duration * self.width)
+            self.cooldown_color = (255, 0, 0)  # Couleur de la jauge de cooldown (rouge pendant le cooldown)
+        else:
+            self.cooldown_width = self.width
+            self.cooldown_color = (0, 255, 0)  # Couleur de la jauge de cooldown (vert quand le dash est disponible)
+        pygame.draw.rect(WIN, self.cooldown_color, (self.rect.x, self.rect.y + self.height, self.cooldown_width, 5))
 
     def basicPlayerMov(self, keys, movDir):
+        global can_dash
+        global last_dash_time
+        global cooldown_start_time
 
         if keys[pygame.K_LEFT] and self.x - PLAYER_VEL >= 0:
             self.x -= PLAYER_VEL
@@ -81,12 +101,25 @@ class Player:
         if keys[pygame.K_DOWN] and self.y + PLAYER_VEL + PLAYER_HEIGHT <= HEIGHT:
             self.y += PLAYER_VEL
             movDir[0] = 0
-            movDir[1] = -1
+            movDir[1] = 1
         if keys[pygame.K_UP] and self.y - PLAYER_VEL >= 0:
             self.y -= PLAYER_VEL
             movDir[0] = 0
-            movDir[1] = 1
+            movDir[1] = -1
 
+        if keys[pygame.K_SPACE] and can_dash:
+            current_time = pygame.time.get_ticks()
+            time_since_last_dash = current_time - last_dash_time
+            cooldown_elapsed = current_time - cooldown_start_time
+
+            if time_since_last_dash >= cooldown_duration:
+                self.x += movDir[0] * self.vel * dash_distance
+                self.y += movDir[1] * self.vel * dash_distance
+                last_dash_time = current_time
+                cooldown_start_time = current_time
+                can_dash = False
+
+        self.update_cooldown()
         return movDir
 
     def orientation(self, movDir):
@@ -264,7 +297,6 @@ def enemySpawner(enemies,levels,currentLevel):
 
 def main():
     run = True
-
     clock = pygame.time.Clock()
 
     BorderLine(100, 101, 10, 786, borderLines)

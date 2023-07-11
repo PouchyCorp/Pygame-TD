@@ -11,24 +11,26 @@ floorImage = pygame.transform.scale(floorImage, (WIDTH, HEIGHT))
 PLAYER_WIDTH = 75
 PLAYER_HEIGHT = 75
 PLAYER_VEL = 4
-playerImage = pygame.image.load('playerImage.jpg')
+playerImage = pygame.image.load('perso 2.png')
 movDir = pygame.math.Vector2(0, 0)
-last_dash_time = 0 
 
 enemyNumber = 3
 enemyWidth = 100
 enemyHeight = 100
 enemyImage = pygame.image.load('enemyImage.jpg')
+dashImage = pygame.image.load('sprite_image.png')
+x = 3
 
 bulletWidth = 10
 bulletHeight = 10
-
-wallHeight = 200
+imagemur = pygame.image.load('mur test 2.jpg')
+wallHeight = 500
 wallWidth = 400
 
-dash_distance = 5
-cooldown_duration = 3000  # Durée du cooldown en millisecondes
-cooldown_start_time = pygame.time.get_ticks() - cooldown_duration  # Temps de début du cooldown
+dash_distance = 35
+cooldown = 3
+can_dash = True
+last_dash_time = pygame.time.get_ticks()
 
 currentLevel = 0
 
@@ -45,7 +47,6 @@ class Level:
         self.enemyCount = enemyCount
         self.roomType = roomType
         self.enemyDiff = enemyDiff
-    
 
 class Bullet:
     def __init__(self, x, y, width, height, dir, vel):
@@ -56,7 +57,6 @@ class Bullet:
         self.dir = dir
         self.vel = vel
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-
 
 class Player:
     def __init__(self, x, y, width, height, vel):
@@ -70,25 +70,14 @@ class Player:
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
-        self.cooldown_color = (0, 255, 0)  # Couleur de la jauge de cooldown (vert)
-        self.cooldown_width = self.width  # Largeur initiale de la jauge de cooldown
 
-    def update_cooldown(self):
-        current_time = pygame.time.get_ticks()
-        time_since_last_dash = current_time - last_dash_time
-        cooldown_elapsed = current_time - cooldown_start_time
-        if time_since_last_dash < cooldown_duration:
-            self.cooldown_width = int((cooldown_duration - time_since_last_dash) / cooldown_duration * self.width)
-            self.cooldown_color = (255, 0, 0)  # Couleur de la jauge de cooldown (rouge pendant le cooldown)
-        else:
-            self.cooldown_width = self.width
-            self.cooldown_color = (0, 255, 0)  # Couleur de la jauge de cooldown (vert quand le dash est disponible)
-        pygame.draw.rect(WIN, self.cooldown_color, (self.rect.x, self.rect.y + self.height, self.cooldown_width, 5))
+    def drawDashImage(self, surface):
+        if not can_dash:
+            surface.blit(dashImage, (self.x, self.y))
 
     def basicPlayerMov(self, keys, movDir):
         global can_dash
         global last_dash_time
-        global cooldown_start_time
 
         if keys[pygame.K_LEFT] and self.x - PLAYER_VEL >= 0:
             self.x -= PLAYER_VEL
@@ -107,20 +96,21 @@ class Player:
             movDir[0] = 0
             movDir[1] = -1
 
+        # DASH :3
         if keys[pygame.K_SPACE] and can_dash:
-            current_time = pygame.time.get_ticks()
-            time_since_last_dash = current_time - last_dash_time
-            cooldown_elapsed = current_time - cooldown_start_time
-
-            if time_since_last_dash >= cooldown_duration:
+            if pygame.time.get_ticks() - last_dash_time >= cooldown * 1000:
+                playerXPrev = self.x
+                playerYPrev = self.y
                 self.x += movDir[0] * self.vel * dash_distance
                 self.y += movDir[1] * self.vel * dash_distance
-                last_dash_time = current_time
-                cooldown_start_time = current_time
+                if self.x < 100 or self.x > 900 or self.y < 100 or self.y > 900:
+                    self.x = playerXPrev
+                    self.y = playerYPrev
+                    print("noooooooooo")
+                last_dash_time = pygame.time.get_ticks()
                 can_dash = False
-
-        self.update_cooldown()
-        return movDir
+        else:
+            can_dash = True  
 
     def orientation(self, movDir):
         if movDir != [0, 0]:
@@ -139,7 +129,6 @@ class Player:
             self.x = playerXPrev
             self.y = playerYPrev
 
-
 class Enemy:
     def __init__(self, x, y, width, height, vel, enemies):
         enemies.append(self)
@@ -149,15 +138,12 @@ class Enemy:
         self.height = height
         self.dir = pygame.math.Vector2(-1, 0)
         self.vel = vel
-        self.image = pygame.transform.scale(
-            enemyImage, (self.width, self.height))
+        self.image = pygame.transform.scale(enemyImage, (self.width, self.height))
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
 
-
 class BorderLine:
-
     def __init__(self, x, y, width, height, borderLines):
         borderLines.append(self)
         self.x = x
@@ -166,27 +152,22 @@ class BorderLine:
         self.height = height
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
-
-def draw(player, wall, enemies, bullets, borderLines):  # dessine chaque element de la scene
-    WIN.blit(floorImage, WIN.get_rect())
-    for borderLine in borderLines:
-        pygame.draw.rect(WIN, "red", borderLine.rect)
+def draw(player, wall, enemies, bullets):
+    WIN.blit(imagemur, WIN.get_rect())
     pygame.draw.rect(WIN, "green", wall)
     WIN.blit(player.image, player.rect)
     for bullet in bullets:
-        pygame.draw.rect(WIN, "yellow", bullet)
+        pygame.draw.rect(WIN,"yellow", bullet.rect)
     for enemy in enemies:
         WIN.blit(enemy.image, enemy.rect)
+    player.drawDashImage(WIN)
     pygame.display.update()
 
-
-def enemyDirection(self, player):  # vecteur de direction de l'enemy
-    dirvect = pygame.math.Vector2(player.x - self.x,
-                                  player.y - self.y)
+def enemyDirection(self, player):
+    dirvect = pygame.math.Vector2(player.x - self.x, player.y - self.y)
     if dirvect != [0, 0]:
         dirvect.normalize()
         return dirvect
-
 
 def enemyEnemyCollisionAndMov(self, enemies, dirvect, player):
     if dirvect != [0, 0] and dirvect is not None:
@@ -203,18 +184,13 @@ def enemyEnemyCollisionAndMov(self, enemies, dirvect, player):
         self.rect.move_ip(dirvect)
         return
 
-
 def enemyWallCollision(enemy, wall, enemies, player):
     x, y = enemy.rect.center
-
     distMurGauche = abs(wall.x - (enemy.rect.x+enemy.width))
     distMurDroit = abs((wall.x+wallWidth) - enemy.rect.x)
     distMurHaut = abs(wall.y - (enemy.rect.y+enemy.height))
     distMurBas = abs((wall.y+wallHeight) - enemy.rect.y)
-
-    enemyEnemyCollisionAndMov(
-        enemy, enemies, enemyDirection(enemy, player), player)
-
+    enemyEnemyCollisionAndMov(enemy, enemies, enemyDirection(enemy, player), player)
     if enemy.rect.colliderect(wall):
         if distMurGauche < distMurBas and distMurGauche < distMurHaut:  # mur gauche
             enemy.rect.x -= distMurGauche
@@ -222,21 +198,18 @@ def enemyWallCollision(enemy, wall, enemies, player):
                 enemy.rect.y += enemy.vel/2
             else:
                 enemy.rect.y -= enemy.vel/2
-
         elif distMurDroit < distMurBas and distMurDroit < distMurHaut:  # mur droit
             enemy.rect.x += abs(wall.x+wallWidth - enemy.rect.x)
             if player.y > y:
                 enemy.rect.y += enemy.vel/2
             else:
                 enemy.rect.y -= enemy.vel/2
-
         elif distMurHaut < distMurDroit and distMurHaut < distMurGauche:  # mur haut
             enemy.rect.y -= abs(wall.y - (enemy.rect.y+enemy.height))
             if player.x > x:
                 enemy.rect.x += enemy.vel/2
             else:
                 enemy.rect.x -= enemy.vel/2
-
         elif distMurBas < distMurDroit and distMurBas < distMurGauche:  # mur bas
             enemy.rect.y += abs(wall.y+wallHeight - enemy.rect.y)
             if player.x > x:
@@ -244,28 +217,24 @@ def enemyWallCollision(enemy, wall, enemies, player):
             else:
                 enemy.rect.x -= enemy.vel/2
 
-def levelManager(levels,enemies):
-    global gameOver,currentLevel,player
-    if enemies == []:
+def levelManager(levels, enemies):
+    global gameOver, currentLevel, player
+    if enemies == [] and player.x >700 and player.y >500:
         gameOver = True
         if currentLevel != len(levels)-1:
             currentLevel = currentLevel + 1
-            enemySpawner(enemies,levels,currentLevel)
-            player.x,player.y = levels[currentLevel].playerStartPos
-
+            enemySpawner(enemies, levels, currentLevel)
+            player.x, player.y = (120,500,)
 
 def playerBulletsInit(player, bullets):
     global bullet
-    bullet = Bullet(player.x+PLAYER_WIDTH/2-bulletWidth/2,
-                    player.y+PLAYER_HEIGHT/2-bulletHeight/2, 10, 10, 0, 4)
+    bullet = Bullet(player.x+PLAYER_WIDTH/2-bulletWidth/2, player.y+PLAYER_HEIGHT/2-bulletHeight/2, 10, 10, 0, 4)
     bullets.append(bullet)
     return bullets
-
-
+# pipipi
 def playerWeapon(player, bullets, enemies, wall, borderLines):
     mouse_x, mouse_y = pygame.mouse.get_pos()
-    mouseDir = pygame.math.Vector2(player.x - mouse_x,
-                                   player.y - mouse_y)
+    mouseDir = pygame.math.Vector2(player.x - mouse_x, player.y - mouse_y)
     mouseDir.scale_to_length(7)
     for bullet in bullets:
         if bullet.rect.colliderect(wall) or bullet.rect.collidelistall(borderLines) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y < 0:
@@ -279,91 +248,59 @@ def playerWeapon(player, bullets, enemies, wall, borderLines):
             bullet.dir = -mouseDir
         bullet.rect.move_ip(bullet.dir)
 
-
 def playerXYSync(player):
     player.rect.x = player.x
     player.rect.y = player.y
-
 
 def enemyXYSync(enemy):
     enemy.x = enemy.rect.x
     enemy.y = enemy.rect.y
 
-def enemySpawner(enemies,levels,currentLevel):
+def enemySpawner(enemies, levels, currentLevel):
     for i in range(levels[currentLevel].enemyCount):
         enemyX = random.choice([i for i in range(WIDTH)])
         Enemy(enemyX, 0, enemyWidth, enemyHeight, 3, enemies)
 
-
 def main():
     run = True
     clock = pygame.time.Clock()
-
-    BorderLine(100, 101, 10, 786, borderLines)
-    BorderLine(100, 887, 800, 10, borderLines)
-    BorderLine(101, 101, 799, 10, borderLines)
-    BorderLine(888, 102, 10, 796, borderLines)
-
-    Level(0,5,(500,500),1,1,levels)
-    Level(1,10,(400,400),1,2,levels)
-    Level(2,15,(300,300),1,3,levels)
-
+    BorderLine(100, 10, 800, 100, borderLines)
+    BorderLine(900, 10, 100, 900, borderLines)
+    BorderLine(10, 900, 900, 100, borderLines)
+    BorderLine(10, 100, 100, 800, borderLines)
+    Level(0, 5, (500, 500), 1, 1, levels)
+    Level(1, 10, (400, 400), 1, 2, levels)
+    Level(2, 15, (300, 300), 1, 3, levels)
     global player
-    player = Player(levels[currentLevel].playerStartPos[0], levels[currentLevel].playerStartPos[1],
-            PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_VEL)
-        
+    player = Player(levels[currentLevel].playerStartPos[0], levels[currentLevel].playerStartPos[1], PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_VEL)
     wall = pygame.Rect(1000, 2000, wallWidth, wallHeight)
-
     attackSpeed = 30
     attackSpeedIncrement = 0
-
     gameOver = True
-
-
-    
     # fait spawn les noobies
-    
-    enemySpawner(enemies,levels,currentLevel)
-    
-    while run:  # --------------------------------------------------------------------------------------------------------------------------#
-        
+    enemySpawner(enemies, levels, currentLevel)
+    while run:
         # tick par seconde du gaming
-
         clock.tick(60)
-
-        
-
-        
-                
-
+        pygame.display.flip()
         # variable qui definie la position du joueur
-
         playerXPrev = player.x
         playerYPrev = player.y
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 break
-
         # deplacement du joueur (voir class Player)
-
         keys = pygame.key.get_pressed()
         player.basicPlayerMov(keys, movDir)
         playerXYSync(player)
-
         # sync du sprite et de la hit box des enemies
-
         for enemy in enemies:
             enemyXYSync(enemy)
-
         # collision du mur avec le joueur UwU
-
         for enemy in enemies:
             enemyWallCollision(enemy, wall, enemies, player)
-
         # bullet firing
-
         if True:
             attackSpeedIncrement += clock.get_fps()/attackSpeed
             if attackSpeedIncrement >= clock.get_fps() and clock.get_fps() != 0:
@@ -371,19 +308,13 @@ def main():
                 attackSpeedIncrement = 0
                 playerBulletsInit(player, bullets)
             playerWeapon(player, bullets, enemies, wall, borderLines)
-
         # entity orientation
-
         player.collision(enemies, wall, playerXPrev, playerYPrev, borderLines)
         player.orientation(movDir)
-
-        #level management
-
-        levelManager(levels,enemies)
-
+        # level management
+        levelManager(levels, enemies)
         # object rendering
-
-        draw(player, wall, enemies, bullets, borderLines)
+        draw(player, wall, enemies, bullets)
 
     pygame.quit()
 

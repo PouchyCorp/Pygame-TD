@@ -167,8 +167,6 @@ class Player:
 
             self.image = playerAnimations[0][self.currentSprite]
 
-            print(len(playerAnimations[0]))
-
 class Enemy:
     def __init__(self, x, y, width, height, vel, enemies):
         enemies.append(self)
@@ -375,6 +373,7 @@ def main():
             attackSpeedIncrement += clock.get_fps()/attackSpeed
             if attackSpeedIncrement >= clock.get_fps() and clock.get_fps() != 0:
                 print(clock.get_fps())
+                print(player.anim)
                 attackSpeedIncrement = 0
                 playerBulletsInit(player, bullets)
             playerWeapon(player, bullets, enemies, walls, borderLines)

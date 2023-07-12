@@ -79,26 +79,29 @@ class Player:
     def basicPlayerMov(self, keys, movDir):
         global can_dash
         global last_dash_time
-        tempRect = self.rect.copy()
         if keys[pygame.K_LEFT] and self.x - self.vel >= 0:
+            tempRect = self.rect.copy()
             tempRect.x -= self.vel
             if tempRect.collidelistall(borderLines) == [] and tempRect.collidelistall(walls) == []:
                 self.x -= self.vel
                 movDir[0] = -1
                 movDir[1] = 0
         if keys[pygame.K_RIGHT] and self.x + self.vel + self.width <= WIDTH:
+            tempRect = self.rect.copy()
             tempRect.x += self.vel
             if tempRect.collidelistall(borderLines) == [] and tempRect.collidelistall(walls) == []:
                 self.x += self.vel
                 movDir[0] = 1
                 movDir[1] = 0
         if keys[pygame.K_DOWN] and self.y + self.vel + self.height <= HEIGHT:
+            tempRect = self.rect.copy()
             tempRect.y += self.vel
             if tempRect.collidelistall(borderLines) == [] and tempRect.collidelistall(walls) == []:
                 self.y += self.vel
                 movDir[0] = 0
                 movDir[1] = 1
         if keys[pygame.K_UP] and self.y - self.vel >= 0:
+            tempRect = self.rect.copy()
             tempRect.y -= self.vel
             if tempRect.collidelistall(borderLines) == [] and tempRect.collidelistall(walls) == []:
                 self.y -= self.vel
@@ -112,8 +115,8 @@ class Player:
                 self.y += movDir[1] * self.vel * dash_distance
                 last_dash_time = pygame.time.get_ticks()
                 can_dash = False
-        else:
-            can_dash = True  
+            else:
+                can_dash = True
 
 
     def orientation(self, movDir):
@@ -300,10 +303,10 @@ def main():
 
         clock.tick(60)
 
+        print (can_dash)
+        
         # variable qui definie la position du joueur
 
-        playerXPrev = player.x
-        playerYPrev = player.y
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False

@@ -19,7 +19,6 @@ enemyWidth = 100
 enemyHeight = 100
 enemyImage = pygame.image.load('enemyImage.jpg')
 dashImage = pygame.image.load('sprite_image.png')
-x = 3
 
 bulletWidth = 10
 bulletHeight = 10
@@ -133,6 +132,9 @@ class Player:
             if self.rect.colliderect(enemy.rect):
                 self.x = WIDTH/2 - PLAYER_WIDTH/2
                 self.y = HEIGHT/2 - PLAYER_HEIGHT
+
+    def animation(self,playerAnimation):
+        
 
 class Enemy:
     def __init__(self, x, y, width, height, vel, enemies):

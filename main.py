@@ -38,6 +38,7 @@ borderLines = []
 enemies = []
 bullets = []
 levels = []
+walls = []
 
 class Level:
     def __init__(self, number, enemyCount, playerStartPos, roomType, enemyDiff, levels):
@@ -78,23 +79,31 @@ class Player:
     def basicPlayerMov(self, keys, movDir):
         global can_dash
         global last_dash_time
-
-        if keys[pygame.K_LEFT] and self.x - PLAYER_VEL >= 0:
-            self.x -= PLAYER_VEL
-            movDir[0] = -1
-            movDir[1] = 0
-        if keys[pygame.K_RIGHT] and self.x + PLAYER_VEL + PLAYER_WIDTH <= WIDTH:
-            self.x += PLAYER_VEL
-            movDir[0] = 1
-            movDir[1] = 0
-        if keys[pygame.K_DOWN] and self.y + PLAYER_VEL + PLAYER_HEIGHT <= HEIGHT:
-            self.y += PLAYER_VEL
-            movDir[0] = 0
-            movDir[1] = 1
-        if keys[pygame.K_UP] and self.y - PLAYER_VEL >= 0:
-            self.y -= PLAYER_VEL
-            movDir[0] = 0
-            movDir[1] = -1
+        tempRect = self.rect.copy()
+        if keys[pygame.K_LEFT] and self.x - self.vel >= 0:
+            tempRect.x -= self.vel
+            if tempRect.collidelistall(borderLines) == [] and tempRect.collidelistall(walls) == []:
+                self.x -= self.vel
+                movDir[0] = -1
+                movDir[1] = 0
+        if keys[pygame.K_RIGHT] and self.x + self.vel + self.width <= WIDTH:
+            tempRect.x += self.vel
+            if tempRect.collidelistall(borderLines) == [] and tempRect.collidelistall(walls) == []:
+                self.x += self.vel
+                movDir[0] = 1
+                movDir[1] = 0
+        if keys[pygame.K_DOWN] and self.y + self.vel + self.height <= HEIGHT:
+            tempRect.y += self.vel
+            if tempRect.collidelistall(borderLines) == [] and tempRect.collidelistall(walls) == []:
+                self.y += self.vel
+                movDir[0] = 0
+                movDir[1] = 1
+        if keys[pygame.K_UP] and self.y - self.vel >= 0:
+            tempRect.y -= self.vel
+            if tempRect.collidelistall(borderLines) == [] and tempRect.collidelistall(walls) == []:
+                self.y -= self.vel
+                movDir[0] = 0
+                movDir[1] = -1
 
         # DASH :3
         if keys[pygame.K_SPACE] and can_dash:
@@ -115,14 +124,11 @@ class Player:
             self.image = rotatedImage
             self.rect = rotatedImage.get_rect(center=self.rect.center)
 
-    def collision(self, enemies, wall, playerXPrev, playerYPrev, borderLines):
+    def collision(self, enemies):
         for enemy in enemies:
             if self.rect.colliderect(enemy.rect):
                 self.x = WIDTH/2 - PLAYER_WIDTH/2
                 self.y = HEIGHT/2 - PLAYER_HEIGHT
-        if self.rect.colliderect(wall) or self.rect.collidelistall(borderLines):
-            self.x = playerXPrev
-            self.y = playerYPrev
 
 class Enemy:
     def __init__(self, x, y, width, height, vel, enemies):
@@ -147,15 +153,19 @@ class BorderLine:
         self.height = height
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
-def draw(player, wall, enemies, bullets):
+def draw(player, walls, enemies, bullets, borderLines):
     WIN.blit(imagemur, WIN.get_rect())
-    pygame.draw.rect(WIN, "green", wall)
+    for wall in walls:
+        pygame.draw.rect(WIN, "green", wall)
     WIN.blit(player.image, player.rect)
     for bullet in bullets:
         pygame.draw.rect(WIN,"yellow", bullet.rect)
     for enemy in enemies:
         WIN.blit(enemy.image, enemy.rect)
     player.drawDashImage(WIN)
+    if False:
+        for borderLine in borderLines:
+            pygame.draw.rect(WIN, "red", borderLine.rect)
     pygame.display.update()
 
 def enemyDirection(self, player):
@@ -179,38 +189,40 @@ def enemyEnemyCollisionAndMov(self, enemies, dirvect, player):
         self.rect.move_ip(dirvect)
         return
 
-def enemyWallCollision(enemy, wall, enemies, player):
+def enemyWallCollision(enemy, walls, enemies, player):
     x, y = enemy.rect.center
-    distMurGauche = abs(wall.x - (enemy.rect.x+enemy.width))
-    distMurDroit = abs((wall.x+wallWidth) - enemy.rect.x)
-    distMurHaut = abs(wall.y - (enemy.rect.y+enemy.height))
-    distMurBas = abs((wall.y+wallHeight) - enemy.rect.y)
-    enemyEnemyCollisionAndMov(enemy, enemies, enemyDirection(enemy, player), player)
-    if enemy.rect.colliderect(wall):
-        if distMurGauche < distMurBas and distMurGauche < distMurHaut:  # mur gauche
-            enemy.rect.x -= distMurGauche
-            if player.y > y:
-                enemy.rect.y += enemy.vel/2
-            else:
-                enemy.rect.y -= enemy.vel/2
-        elif distMurDroit < distMurBas and distMurDroit < distMurHaut:  # mur droit
-            enemy.rect.x += abs(wall.x+wallWidth - enemy.rect.x)
-            if player.y > y:
-                enemy.rect.y += enemy.vel/2
-            else:
-                enemy.rect.y -= enemy.vel/2
-        elif distMurHaut < distMurDroit and distMurHaut < distMurGauche:  # mur haut
-            enemy.rect.y -= abs(wall.y - (enemy.rect.y+enemy.height))
-            if player.x > x:
-                enemy.rect.x += enemy.vel/2
-            else:
-                enemy.rect.x -= enemy.vel/2
-        elif distMurBas < distMurDroit and distMurBas < distMurGauche:  # mur bas
-            enemy.rect.y += abs(wall.y+wallHeight - enemy.rect.y)
-            if player.x > x:
-                enemy.rect.x += enemy.vel/2
-            else:
-                enemy.rect.x -= enemy.vel/2
+    for wall in walls:
+        distMurGauche = abs(wall.x - (enemy.rect.x+enemy.width))
+        distMurDroit = abs((wall.x+wallWidth) - enemy.rect.x)
+        distMurHaut = abs(wall.y - (enemy.rect.y+enemy.height))
+        distMurBas = abs((wall.y+wallHeight) - enemy.rect.y)
+        enemyEnemyCollisionAndMov(enemy, enemies, enemyDirection(enemy, player), player)
+
+        if enemy.rect.colliderect(wall):
+            if distMurGauche < distMurBas and distMurGauche < distMurHaut:  # mur gauche
+                enemy.rect.x -= distMurGauche
+                if player.y > y:
+                    enemy.rect.y += enemy.vel/2
+                else:
+                    enemy.rect.y -= enemy.vel/2
+            elif distMurDroit < distMurBas and distMurDroit < distMurHaut:  # mur droit
+                enemy.rect.x += abs(wall.x+wallWidth - enemy.rect.x)
+                if player.y > y:
+                    enemy.rect.y += enemy.vel/2
+                else:
+                    enemy.rect.y -= enemy.vel/2
+            elif distMurHaut < distMurDroit and distMurHaut < distMurGauche:  # mur haut
+                enemy.rect.y -= abs(wall.y - (enemy.rect.y+enemy.height))
+                if player.x > x:
+                    enemy.rect.x += enemy.vel/2
+                else:
+                    enemy.rect.x -= enemy.vel/2
+            elif distMurBas < distMurDroit and distMurBas < distMurGauche:  # mur bas
+                enemy.rect.y += abs(wall.y+wallHeight - enemy.rect.y)
+                if player.x > x:
+                    enemy.rect.x += enemy.vel/2
+                else:
+                    enemy.rect.x -= enemy.vel/2
 
 def levelManager(levels, enemies):
     global gameOver, currentLevel, player
@@ -225,15 +237,16 @@ def playerBulletsInit(player, bullets):
     bullet = Bullet(player.x+PLAYER_WIDTH/2-bulletWidth/2, player.y+PLAYER_HEIGHT/2-bulletHeight/2, 10, 10, 0, 4)
     bullets.append(bullet)
     return bullets
+
 # pipipi
-def playerWeapon(player, bullets, enemies, wall, borderLines):
+
+def playerWeapon(player, bullets, enemies, walls, borderLines):
     mouse_x, mouse_y = pygame.mouse.get_pos()
     mouseDir = pygame.math.Vector2(player.x - mouse_x, player.y - mouse_y)
     mouseDir.scale_to_length(7)
     for bullet in bullets:
-        if bullet.rect.colliderect(wall) or bullet.rect.collidelistall(borderLines) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y < 0:
+        if bullet.rect.collidelistall(walls) or bullet.rect.collidelistall(borderLines) or bullet.x > WIDTH or bullet.x < 0 or bullet.y > HEIGHT or bullet.y < 0:
             bullets.remove(bullet)
-            print('uwu')
         for enemy in enemies:
             if bullet.rect.colliderect(enemy.rect) and bullet in bullets:
                 bullets.remove(bullet)
@@ -259,10 +272,10 @@ def main():
     run = True
     clock = pygame.time.Clock()
     
-    BorderLine(100, 10, 800, 10, borderLines)
-    BorderLine(900, 10, 10, 900, borderLines)
-    BorderLine(10, 900, 900, 10, borderLines)
-    BorderLine(10, 100, 10, 800, borderLines)
+    BorderLine( 87 , 101 , 10 , 804 ,borderLines)
+    BorderLine( 98 , 903 , 804 , 10 ,borderLines)
+    BorderLine( 906 , 100 , 10 , 804 ,borderLines)
+    BorderLine( 97 , 87 , 809 , 10 ,borderLines)
 
     Level(0, 5, (500, 500), 1, 1, levels)
     Level(1, 10, (400, 400), 1, 2, levels)
@@ -270,7 +283,10 @@ def main():
 
     global player
     player = Player(levels[currentLevel].playerStartPos[0], levels[currentLevel].playerStartPos[1], PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_VEL)
-    wall = pygame.Rect(1000, 2000, wallWidth, wallHeight)
+
+    
+    walls.append(pygame.Rect(1000, 2000, wallWidth, wallHeight))
+
     attackSpeed = 30
     attackSpeedIncrement = 0
     gameOver = True
@@ -307,7 +323,7 @@ def main():
         # collision du mur avec le joueur UwU
 
         for enemy in enemies:
-            enemyWallCollision(enemy, wall, enemies, player)
+            enemyWallCollision(enemy, walls, enemies, player)
 
         # bullet firing
 
@@ -317,11 +333,11 @@ def main():
                 print(clock.get_fps())
                 attackSpeedIncrement = 0
                 playerBulletsInit(player, bullets)
-            playerWeapon(player, bullets, enemies, wall, borderLines)
+            playerWeapon(player, bullets, enemies, walls, borderLines)
 
         # entity orientation
 
-        player.collision(enemies, wall, playerXPrev, playerYPrev, borderLines)
+        player.collision(enemies)
         player.orientation(movDir)
 
         # level management
@@ -330,7 +346,7 @@ def main():
 
         # object rendering
 
-        draw(player, wall, enemies, bullets)
+        draw(player, walls, enemies, bullets,borderLines)
 
     pygame.quit()
 

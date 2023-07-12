@@ -44,12 +44,12 @@ playerAnimations = []
 currentAnim = 'idle'
 playerRunAnimation = [pygame.image.load('frame1.png'), pygame.image.load('frame2.png'), pygame.image.load('frame3.png'), pygame.image.load('frame4.png'), pygame.image.load('frame5.png')
  ]
-
-for i in range(0,len(playerRunAnimation)):
-    playerRunAnimation[i] = pygame.transform.scale(playerRunAnimation[i],(PLAYER_WIDTH,PLAYER_HEIGHT))
+playerIdleAnimation = [pygame.image.load('perso 2.png')]
 
 
 playerAnimations.append(playerRunAnimation)
+playerAnimations.append(playerIdleAnimation)
+
 
 class Level:
     def __init__(self, number, enemyCount, playerStartPos, roomType, enemyDiff, levels):
@@ -101,7 +101,7 @@ class Player:
                 self.x -= self.vel
                 movDir[0] = -1
                 movDir[1] = 0
-                self.anim = 'run left'
+                self.anim = 'run'
         if keys[pygame.K_RIGHT] and self.x + self.vel + self.width <= WIDTH:
             tempRect = self.rect.copy()
             tempRect.x += self.vel
@@ -109,7 +109,7 @@ class Player:
                 self.x += self.vel
                 movDir[0] = 1
                 movDir[1] = 0
-                self.anim = 'run right'
+                self.anim = 'run'
         if keys[pygame.K_DOWN] and self.y + self.vel + self.height <= HEIGHT:
             tempRect = self.rect.copy()
             tempRect.y += self.vel
@@ -117,7 +117,7 @@ class Player:
                 self.y += self.vel
                 movDir[0] = 0
                 movDir[1] = 1
-                self.anim = 'run down'
+                self.anim = 'run'
         if keys[pygame.K_UP] and self.y - self.vel >= 0:
             tempRect = self.rect.copy()
             tempRect.y -= self.vel
@@ -125,7 +125,7 @@ class Player:
                 self.y -= self.vel
                 movDir[0] = 0
                 movDir[1] = -1
-                self.anim = 'run up'
+                self.anim = 'run'
         
         
 
@@ -158,7 +158,7 @@ class Player:
     def animation(self,playerAnimations):
         self.animCooldownIncrement += 10
 
-        if self.anim == 'idle' and self.animCooldownIncrement >= self.animCooldown:
+        if self.anim == 'run' and self.animCooldownIncrement >= self.animCooldown:
             self.animCooldownIncrement = 0
 
             self.currentSprite += 1
@@ -166,6 +166,16 @@ class Player:
                 self.currentSprite = 0
 
             self.image = playerAnimations[0][self.currentSprite]
+
+        if False:
+            if self.anim == 'idle' and self.animCooldownIncrement >= self.animCooldown:
+                self.animCooldownIncrement = 0
+
+                self.currentSprite += 1
+                if self.currentSprite >= len(playerAnimations[0]):
+                    self.currentSprite = 0
+
+                self.image = playerAnimations[1][self.currentSprite]
 
 class Enemy:
     def __init__(self, x, y, width, height, vel, enemies):
@@ -305,6 +315,11 @@ def enemyXYSync(enemy):
     enemy.x = enemy.rect.x
     enemy.y = enemy.rect.y
 
+def animationScaling(animations, entity):
+    for animation in animations:
+        for i in range(0,len(animation)):
+            animation[i] = pygame.transform.scale(animation[i],(entity.width,entity.height))
+
 def enemySpawner(enemies, levels, currentLevel):
     for i in range(levels[currentLevel].enemyCount):
         enemyX = random.choice([i for i in range(WIDTH)])
@@ -373,7 +388,7 @@ def main():
             attackSpeedIncrement += clock.get_fps()/attackSpeed
             if attackSpeedIncrement >= clock.get_fps() and clock.get_fps() != 0:
                 print(clock.get_fps())
-                print(player.anim)
+                print(player.anim, movDir)
                 attackSpeedIncrement = 0
                 playerBulletsInit(player, bullets)
             playerWeapon(player, bullets, enemies, walls, borderLines)
@@ -381,14 +396,17 @@ def main():
         # entity orientation
 
         player.collision(enemies)
-        player.orientation(movDir)
+        
 
         # level management
 
         levelManager(levels, enemies)
 
         # object rendering
+
         player.animation(playerAnimations)
+        animationScaling(playerAnimations,player)
+        #player.orientation(movDir)
         draw(player, walls, enemies, bullets, borderLines)
 
     pygame.quit()

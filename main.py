@@ -39,10 +39,17 @@ enemies = []
 bullets = []
 levels = []
 walls = []
+playerAnimations = []
 
 currentAnim = 'idle'
 playerRunAnimation = [pygame.image.load('frame1.png'), pygame.image.load('frame2.png'), pygame.image.load('frame3.png'), pygame.image.load('frame4.png'), pygame.image.load('frame5.png')
  ]
+
+for i in range(0,len(playerRunAnimation)):
+    playerRunAnimation[i] = pygame.transform.scale(playerRunAnimation[i],(PLAYER_WIDTH,PLAYER_HEIGHT))
+
+
+playerAnimations.append(playerRunAnimation)
 
 class Level:
     def __init__(self, number, enemyCount, playerStartPos, roomType, enemyDiff, levels):
@@ -75,6 +82,10 @@ class Player:
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
+        self.currentSprite = 0
+        self.anim = 'idle'
+        self.animCooldown = 100
+        self.animCooldownIncrement = 0
 
     def drawDashImage(self, surface):
         if not can_dash:
@@ -83,8 +94,6 @@ class Player:
     def basicPlayerMov(self, keys, movDir):
         global can_dash
         global last_dash_time
-        global currentAnim
-
         if keys[pygame.K_LEFT] and self.x - self.vel >= 0:
             tempRect = self.rect.copy()
             tempRect.x -= self.vel
@@ -92,7 +101,7 @@ class Player:
                 self.x -= self.vel
                 movDir[0] = -1
                 movDir[1] = 0
-                currentAnim = 'run left'
+                self.anim = 'run left'
         if keys[pygame.K_RIGHT] and self.x + self.vel + self.width <= WIDTH:
             tempRect = self.rect.copy()
             tempRect.x += self.vel
@@ -100,7 +109,7 @@ class Player:
                 self.x += self.vel
                 movDir[0] = 1
                 movDir[1] = 0
-                currentAnim = 'run right'
+                self.anim = 'run right'
         if keys[pygame.K_DOWN] and self.y + self.vel + self.height <= HEIGHT:
             tempRect = self.rect.copy()
             tempRect.y += self.vel
@@ -108,7 +117,7 @@ class Player:
                 self.y += self.vel
                 movDir[0] = 0
                 movDir[1] = 1
-                currentAnim = 'run down'
+                self.anim = 'run down'
         if keys[pygame.K_UP] and self.y - self.vel >= 0:
             tempRect = self.rect.copy()
             tempRect.y -= self.vel
@@ -116,7 +125,7 @@ class Player:
                 self.y -= self.vel
                 movDir[0] = 0
                 movDir[1] = -1
-                currentAnim = 'run up'
+                self.anim = 'run up'
         
         
 
@@ -146,9 +155,19 @@ class Player:
                 self.x = WIDTH/2 - PLAYER_WIDTH/2
                 self.y = HEIGHT/2 - PLAYER_HEIGHT
 
-    def animation(self,playerAnimation,currentAnim):
-        return
-        
+    def animation(self,playerAnimations):
+        self.animCooldownIncrement += 10
+
+        if self.anim == 'idle' and self.animCooldownIncrement >= self.animCooldown:
+            self.animCooldownIncrement = 0
+
+            self.currentSprite += 1
+            if self.currentSprite >= len(playerAnimations[0]):
+                self.currentSprite = 0
+
+            self.image = playerAnimations[0][self.currentSprite]
+
+            print(len(playerAnimations[0]))
 
 class Enemy:
     def __init__(self, x, y, width, height, vel, enemies):
@@ -175,17 +194,22 @@ class BorderLine:
 
 def draw(player, walls, enemies, bullets, borderLines):
     WIN.blit(imagemur, WIN.get_rect())
+
     for wall in walls:
         pygame.draw.rect(WIN, "green", wall)
+
     WIN.blit(player.image, player.rect)
+
     for bullet in bullets:
         pygame.draw.rect(WIN,"yellow", bullet.rect)
+
     for enemy in enemies:
         WIN.blit(enemy.image, enemy.rect)
-    player.drawDashImage(WIN)
+
     if False:
         for borderLine in borderLines:
             pygame.draw.rect(WIN, "red", borderLine.rect)
+
     pygame.display.update()
 
 def enemyDirection(self, player):
@@ -319,8 +343,8 @@ def main():
         # tick par seconde du gaming
 
         clock.tick(60)
-
-        print (can_dash)
+        
+        player.anim = 'idle'
 
         # variable qui definie la position du joueur
 
@@ -365,8 +389,8 @@ def main():
         levelManager(levels, enemies)
 
         # object rendering
-
-        draw(player, walls, enemies, bullets,borderLines)
+        player.animation(playerAnimations)
+        draw(player, walls, enemies, bullets, borderLines)
 
     pygame.quit()
 

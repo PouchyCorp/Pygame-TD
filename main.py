@@ -98,19 +98,14 @@ class Player:
 
         # DASH :3
         if keys[pygame.K_SPACE] and can_dash:
-            if pygame.time.get_ticks() - last_dash_time >= cooldown * 1000:
-                playerXPrev = self.x
-                playerYPrev = self.y
+            if pygame.time.get_ticks() - last_dash_time >= cooldown * 1000 and 0 < self.x + movDir[0] * self.vel * dash_distance < WIDTH and 0 < self.y + movDir[1] * self.vel * dash_distance < HEIGHT:
                 self.x += movDir[0] * self.vel * dash_distance
                 self.y += movDir[1] * self.vel * dash_distance
-                if self.x < 100 or self.x > 900 or self.y < 100 or self.y > 900:
-                    self.x = playerXPrev
-                    self.y = playerYPrev
-                    print("noooooooooo")
                 last_dash_time = pygame.time.get_ticks()
                 can_dash = False
         else:
             can_dash = True  
+
 
     def orientation(self, movDir):
         if movDir != [0, 0]:
@@ -224,7 +219,6 @@ def levelManager(levels, enemies):
         if currentLevel != len(levels)-1:
             currentLevel = currentLevel + 1
             enemySpawner(enemies, levels, currentLevel)
-            player.x, player.y = (120,500,)
 
 def playerBulletsInit(player, bullets):
     global bullet
@@ -264,43 +258,59 @@ def enemySpawner(enemies, levels, currentLevel):
 def main():
     run = True
     clock = pygame.time.Clock()
-    BorderLine(100, 10, 800, 100, borderLines)
-    BorderLine(900, 10, 100, 900, borderLines)
-    BorderLine(10, 900, 900, 100, borderLines)
-    BorderLine(10, 100, 100, 800, borderLines)
+    
+    BorderLine(100, 10, 800, 10, borderLines)
+    BorderLine(900, 10, 10, 900, borderLines)
+    BorderLine(10, 900, 900, 10, borderLines)
+    BorderLine(10, 100, 10, 800, borderLines)
+
     Level(0, 5, (500, 500), 1, 1, levels)
     Level(1, 10, (400, 400), 1, 2, levels)
     Level(2, 15, (300, 300), 1, 3, levels)
+
     global player
     player = Player(levels[currentLevel].playerStartPos[0], levels[currentLevel].playerStartPos[1], PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_VEL)
     wall = pygame.Rect(1000, 2000, wallWidth, wallHeight)
     attackSpeed = 30
     attackSpeedIncrement = 0
     gameOver = True
+
     # fait spawn les noobies
+
     enemySpawner(enemies, levels, currentLevel)
     while run:
+        
         # tick par seconde du gaming
+
         clock.tick(60)
-        pygame.display.flip()
+
         # variable qui definie la position du joueur
+
         playerXPrev = player.x
         playerYPrev = player.y
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 break
+
         # deplacement du joueur (voir class Player)
+
         keys = pygame.key.get_pressed()
         player.basicPlayerMov(keys, movDir)
         playerXYSync(player)
+
         # sync du sprite et de la hit box des enemies
+
         for enemy in enemies:
             enemyXYSync(enemy)
+
         # collision du mur avec le joueur UwU
+
         for enemy in enemies:
             enemyWallCollision(enemy, wall, enemies, player)
+
         # bullet firing
+
         if True:
             attackSpeedIncrement += clock.get_fps()/attackSpeed
             if attackSpeedIncrement >= clock.get_fps() and clock.get_fps() != 0:
@@ -308,12 +318,18 @@ def main():
                 attackSpeedIncrement = 0
                 playerBulletsInit(player, bullets)
             playerWeapon(player, bullets, enemies, wall, borderLines)
+
         # entity orientation
+
         player.collision(enemies, wall, playerXPrev, playerYPrev, borderLines)
         player.orientation(movDir)
+
         # level management
+
         levelManager(levels, enemies)
+
         # object rendering
+
         draw(player, wall, enemies, bullets)
 
     pygame.quit()

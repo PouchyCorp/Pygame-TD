@@ -109,14 +109,15 @@ class Player:
                 movDir[1] = -1
 
         # DASH :3
-        if keys[pygame.K_SPACE] and can_dash:
-            if pygame.time.get_ticks() - last_dash_time >= cooldown * 1000 and 0 < self.x + movDir[0] * self.vel * dash_distance < WIDTH and 0 < self.y + movDir[1] * self.vel * dash_distance < HEIGHT:
-                self.x += movDir[0] * self.vel * dash_distance
-                self.y += movDir[1] * self.vel * dash_distance
-                last_dash_time = pygame.time.get_ticks()
-                can_dash = False
-            else:
-                can_dash = True
+        if False:
+            if keys[pygame.K_SPACE] and can_dash:
+                if pygame.time.get_ticks() - last_dash_time >= cooldown * 1000 and 0 < self.x + movDir[0] * self.vel * dash_distance < WIDTH and 0 < self.y + movDir[1] * self.vel * dash_distance < HEIGHT:
+                    self.x += movDir[0] * self.vel * dash_distance
+                    self.y += movDir[1] * self.vel * dash_distance
+                    last_dash_time = pygame.time.get_ticks()
+                    can_dash = False
+                else:
+                    can_dash = True
 
 
     def orientation(self, movDir):
@@ -304,7 +305,7 @@ def main():
         clock.tick(60)
 
         print (can_dash)
-        
+
         # variable qui definie la position du joueur
 
         for event in pygame.event.get():

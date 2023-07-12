@@ -31,6 +31,7 @@ cooldown = 3
 can_dash = True
 last_dash_time = pygame.time.get_ticks()
 
+
 currentLevel = 0
 
 borderLines = []
@@ -38,6 +39,10 @@ enemies = []
 bullets = []
 levels = []
 walls = []
+
+currentAnim = 'idle'
+playerRunAnimation = [pygame.image.load('frame1.png'), pygame.image.load('frame2.png'), pygame.image.load('frame3.png'), pygame.image.load('frame4.png'), pygame.image.load('frame5.png')
+ ]
 
 class Level:
     def __init__(self, number, enemyCount, playerStartPos, roomType, enemyDiff, levels):
@@ -78,6 +83,8 @@ class Player:
     def basicPlayerMov(self, keys, movDir):
         global can_dash
         global last_dash_time
+        global currentAnim
+
         if keys[pygame.K_LEFT] and self.x - self.vel >= 0:
             tempRect = self.rect.copy()
             tempRect.x -= self.vel
@@ -85,6 +92,7 @@ class Player:
                 self.x -= self.vel
                 movDir[0] = -1
                 movDir[1] = 0
+                currentAnim = 'run left'
         if keys[pygame.K_RIGHT] and self.x + self.vel + self.width <= WIDTH:
             tempRect = self.rect.copy()
             tempRect.x += self.vel
@@ -92,6 +100,7 @@ class Player:
                 self.x += self.vel
                 movDir[0] = 1
                 movDir[1] = 0
+                currentAnim = 'run right'
         if keys[pygame.K_DOWN] and self.y + self.vel + self.height <= HEIGHT:
             tempRect = self.rect.copy()
             tempRect.y += self.vel
@@ -99,6 +108,7 @@ class Player:
                 self.y += self.vel
                 movDir[0] = 0
                 movDir[1] = 1
+                currentAnim = 'run down'
         if keys[pygame.K_UP] and self.y - self.vel >= 0:
             tempRect = self.rect.copy()
             tempRect.y -= self.vel
@@ -106,6 +116,9 @@ class Player:
                 self.y -= self.vel
                 movDir[0] = 0
                 movDir[1] = -1
+                currentAnim = 'run up'
+        
+        
 
         # DASH :3
         if False:
@@ -133,7 +146,8 @@ class Player:
                 self.x = WIDTH/2 - PLAYER_WIDTH/2
                 self.y = HEIGHT/2 - PLAYER_HEIGHT
 
-    def animation(self,playerAnimation):
+    def animation(self,playerAnimation,currentAnim):
+        return
         
 
 class Enemy:
